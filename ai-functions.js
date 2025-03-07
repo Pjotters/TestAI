@@ -9,6 +9,14 @@ async function sendMessage() {
 
     const chatMessages = document.getElementById('chatMessages');
     chatMessages.innerHTML += `<div class="user-message">${message}</div>`;
+    
+    // Voeg laad-animatie toe
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'bot-message loading';
+    loadingDiv.innerHTML = 'Antwoord wordt gegenereerd<span class="dots">...</span>';
+    chatMessages.appendChild(loadingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
     userInput.value = '';
 
     try {
@@ -20,9 +28,9 @@ async function sendMessage() {
             },
             body: JSON.stringify({
                 inputs: `<s>[INST] Je bent een behulpzame Nederlandse AI assistent. 
-Beantwoord deze vraag in het Nederlands: ${message} [/INST]`,
+Geef een gedetailleerd antwoord op deze vraag in het Nederlands: ${message} [/INST]`,
                 parameters: {
-                    max_new_tokens: 150,
+                    max_new_tokens: 500,
                     temperature: 0.7,
                     top_p: 0.95,
                     do_sample: true,
@@ -30,6 +38,9 @@ Beantwoord deze vraag in het Nederlands: ${message} [/INST]`,
                 }
             })
         });
+
+        // Verwijder laad-animatie
+        chatMessages.removeChild(loadingDiv);
 
         if (!response.ok) {
             throw new Error(`API request mislukt: ${response.status}`);
@@ -44,6 +55,8 @@ Beantwoord deze vraag in het Nederlands: ${message} [/INST]`,
         chatMessages.innerHTML += `<div class="bot-message">${generatedText}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
     } catch (error) {
+        // Verwijder laad-animatie bij error
+        chatMessages.removeChild(loadingDiv);
         console.error('Error:', error);
         chatMessages.innerHTML += `<div class="bot-message error">Sorry, er ging iets mis: ${error.message}</div>`;
     }
