@@ -31,17 +31,23 @@ async function detectObjects() {
     const canvas = document.getElementById('overlay');
     const ctx = canvas.getContext('2d');
     
+    // Voeg loading indicator toe
+    const container = document.querySelector('.camera-container');
+    if (!container.querySelector('.detection-status')) {
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'detection-status';
+        statusDiv.innerHTML = 'Detectie actief<span class="dots">...</span>';
+        container.insertBefore(statusDiv, container.querySelector('#toggleBtn'));
+    }
+    
     // Controleer of video speelt
     if (video.readyState !== video.HAVE_ENOUGH_DATA) {
         requestAnimationFrame(detectObjects);
         return;
     }
     
-    // Neem screenshot van video
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
     try {
-        // Converteer naar base64
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
 
         const response = await fetch("https://api-inference.huggingface.co/models/facebook/detr-resnet-50", {
@@ -60,12 +66,17 @@ async function detectObjects() {
         const result = await response.json();
         drawDetections(result, ctx);
         
-        // Blijf detecteren als isDetecting true is
+        // Update status met aantal detecties
+        const statusDiv = container.querySelector('.detection-status');
+        statusDiv.innerHTML = `${result.length} object(en) gedetecteerd`;
+        
         if (isDetecting) {
-            setTimeout(detectObjects, 1000); // Wacht 1 seconde tussen detecties
+            setTimeout(detectObjects, 1000);
         }
     } catch (error) {
         console.error('Detectie error:', error);
+        const statusDiv = container.querySelector('.detection-status');
+        statusDiv.innerHTML = `Error: ${error.message}`;
         if (isDetecting) {
             setTimeout(detectObjects, 1000);
         }
@@ -99,13 +110,23 @@ function drawDetections(detections, ctx) {
 
 function toggleDetection() {
     const btn = document.getElementById('toggleBtn');
+    const container = document.querySelector('.camera-container');
     isDetecting = !isDetecting;
     
     if (isDetecting) {
         btn.textContent = 'Stop Detectie';
-        detectObjects(); // Start detectie loop
+        btn.classList.add('active');
+        detectObjects();
     } else {
         btn.textContent = 'Start Detectie';
+        btn.classList.remove('active');
+        // Verwijder status indicator
+        const statusDiv = container.querySelector('.detection-status');
+        if (statusDiv) statusDiv.remove();
+        // Clear canvas
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 }
 
