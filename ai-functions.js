@@ -73,23 +73,61 @@ async function analyzeImage() {
     const file = imageInput.files[0];
     if (!file) return;
 
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    
-    img.onload = async () => {
-        // Laad MobileNet model
-        const model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json');
-        
-        // Voorbewerk de afbeelding
-        const tensor = tf.browser.fromPixels(img)
-            .resizeNearestNeighbor([224, 224])
-            .toFloat()
-            .expandDims();
+    const resultsDiv = document.getElementById('imageResults');
+    resultsDiv.innerHTML = '<div class="loading">Afbeelding wordt geanalyseerd<span class="dots">...</span></div>';
 
-        // Maak voorspelling
-        const predictions = await model.predict(tensor).data();
-        displayImageResults(predictions);
-    };
+    try {
+        // Converteer afbeelding naar base64
+        const base64Image = await getBase64(file);
+        
+        const response = await fetch("https://api-inference.huggingface.co/models/microsoft/resnet-50", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                inputs: base64Image,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request mislukt: ${response.status}`);
+        }
+
+        const result = await response.json();
+        displayImageResults(result);
+    } catch (error) {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = `<div class="error">Sorry, er ging iets mis: ${error.message}</div>`;
+    }
+}
+
+// Helper functie om afbeelding naar base64 te converteren
+function getBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+    });
+}
+
+function displayImageResults(predictions) {
+    const resultsDiv = document.getElementById('imageResults');
+    resultsDiv.innerHTML = '<h3>Resultaten:</h3>';
+    
+    predictions.slice(0, 5).forEach((prediction, index) => {
+        const percentage = (prediction.score * 100).toFixed(1);
+        resultsDiv.innerHTML += `
+            <div class="prediction-item">
+                <span class="prediction-label">${prediction.label}</span>
+                <div class="prediction-bar">
+                    <div class="bar" style="width: ${percentage}%"></div>
+                    <span class="percentage">${percentage}%</span>
+                </div>
+            </div>`;
+    });
 }
 
 // Beeldbewerking met OpenCV.js
@@ -118,14 +156,4 @@ function applyFilter(filterType) {
     cv.imshow(canvas, dst);
     src.delete();
     dst.delete();
-}
-
-function displayImageResults(predictions) {
-    const resultsDiv = document.getElementById('imageResults');
-    resultsDiv.innerHTML = '<h3>Resultaten:</h3>';
-    
-    // Toon top 3 voorspellingen
-    for (let i = 0; i < 3; i++) {
-        resultsDiv.innerHTML += `<p>Voorspelling ${i + 1}: ${predictions[i]}</p>`;
-    }
 } 

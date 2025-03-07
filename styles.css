@@ -13,8 +13,10 @@
 }
 
 body {
-    background-color: var(--background-color);
-    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    background-color: #343541;
+    color: white;
     line-height: 1.6;
 }
 

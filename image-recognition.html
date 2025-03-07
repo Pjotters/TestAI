@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beeldherkenning | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="../bestanden/Images/zipzop-logo.png" alt="Pjotters" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="chat.html">Chat</a></li>
+                <li><a href="image-recognition.html">Beeldherkenning</a></li>
+                <li><a href="image-editor.html">Beeldbewerking</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="ai-tools">
+        <div class="tool-section image-recognition">
+            <h2>Afbeelding Analyse</h2>
+            <p>Aangedreven door Hugging Face modellen</p>
+            <div class="upload-container">
+                <input type="file" id="imageInput" accept="image/*">
+                <button onclick="analyzeImage()" class="cta-primary">Analyseer</button>
+                <div id="imageResults" class="results-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="ai-functions.js"></script>
+</body>
+</html>
