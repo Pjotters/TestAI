@@ -71,20 +71,43 @@ function drawDetections(detections, ctx) {
     const canvas = ctx.canvas;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Log de detecties om de structuur te zien
+    console.log('Detecties:', detections);
+    
+    // Controleer of detections een array is
+    if (!Array.isArray(detections)) {
+        console.error('Geen geldige detecties ontvangen');
+        return;
+    }
+    
     detections.forEach(detection => {
-        const [x0, y0, x1, y1] = detection.box;
-        const label = `${detection.label} ${Math.round(detection.score * 100)}%`;
+        // Controleer of we een geldig box object hebben
+        if (!detection.box || detection.box.length !== 4) {
+            console.error('Ongeldige box data:', detection);
+            return;
+        }
         
+        // Haal de coördinaten op en rond ze af naar hele getallen
+        const box = detection.box.map(coord => Math.round(coord));
+        const [x0, y0, x1, y1] = box;
+        
+        // Bereken score percentage
+        const score = detection.score || 0;
+        const label = `${detection.label || 'Object'} ${Math.round(score * 100)}%`;
+        
+        // Teken box
         ctx.strokeStyle = '#10a37f';
         ctx.lineWidth = 3;
         ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
         
+        // Teken label achtergrond
         ctx.fillStyle = '#10a37f';
+        ctx.font = '16px Inter';
         const textWidth = ctx.measureText(label).width;
         ctx.fillRect(x0, y0 - 25, textWidth + 10, 25);
         
+        // Teken label tekst
         ctx.fillStyle = '#ffffff';
-        ctx.font = '16px Inter';
         ctx.fillText(label, x0 + 5, y0 - 7);
     });
 }
