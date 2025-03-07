@@ -1,5 +1,5 @@
 // Globale variabelen
-const HF_API_URL = "https://api-inference.huggingface.co/models/GroNLP/gpt2-small-dutch";  // Ander Nederlands model
+const HF_API_URL = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-125M";
 const HF_API_KEY = config.API_KEY;
 
 async function sendMessage() {
@@ -12,20 +12,20 @@ async function sendMessage() {
     userInput.value = '';
 
     try {
-        const response = await fetch('https://cors-anywhere.herokuapp.com/' + HF_API_URL, {
+        const response = await fetch(HF_API_URL, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${HF_API_KEY}`,
                 "Content-Type": "application/json",
-                "Origin": window.location.origin
             },
             body: JSON.stringify({
-                inputs: message,
+                inputs: "Je bent een Nederlandse AI assistent. Beantwoord deze vraag: " + message,
                 parameters: {
-                    max_length: 100,
+                    max_new_tokens: 100,
                     temperature: 0.7,
                     top_p: 0.9,
-                    do_sample: true
+                    do_sample: true,
+                    return_full_text: false
                 }
             })
         });
