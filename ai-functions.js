@@ -1,16 +1,31 @@
 // Globale variabelen
-let generator;
+const HF_API_URL = "https://api-inference.huggingface.co/models/openai-community/gpt2";
+const HF_API_KEY = process.env.HF_API_KEY || ''; // Laad uit environment variables
 
 async function initializeAI() {
     try {
-        const { pipeline } = await import('@xenova/transformers');
-        generator = await pipeline('text-generation', 'gpt2', {
-            max_length: 50,
-            num_return_sequences: 1
+        // Test de API verbinding
+        const response = await fetch(HF_API_URL, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                inputs: "Test bericht",
+                parameters: {
+                    max_length: 50,
+                    num_return_sequences: 1
+                }
+            })
         });
-        console.log('AI model succesvol geladen!');
+
+        if (!response.ok) {
+            throw new Error('API verbinding mislukt');
+        }
+        console.log('AI model succesvol verbonden!');
     } catch (error) {
-        console.error('Error bij laden AI:', error);
+        console.error('Error bij verbinden met API:', error);
         setTimeout(initializeAI, 5000);
     }
 }
@@ -24,19 +39,33 @@ async function sendMessage() {
     const message = userInput.value;
     if (!message) return;
 
-    // Toon gebruikersbericht
     const chatMessages = document.getElementById('chatMessages');
     chatMessages.innerHTML += `<div class="user-message">${message}</div>`;
     userInput.value = '';
 
     try {
-        if (!generator) {
-            throw new Error('AI model is nog niet geladen');
+        const response = await fetch(HF_API_URL, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                inputs: message,
+                parameters: {
+                    max_length: 50,
+                    num_return_sequences: 1
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('API request mislukt');
         }
 
-        const result = await generator(message);
-        const response = result[0].generated_text;
-        chatMessages.innerHTML += `<div class="bot-message">${response}</div>`;
+        const result = await response.json();
+        const generatedText = result[0].generated_text;
+        chatMessages.innerHTML += `<div class="bot-message">${generatedText}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
     } catch (error) {
         console.error('Error:', error);
