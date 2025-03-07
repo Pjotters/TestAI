@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Object Detectie | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="../bestanden/Images/zipzop-logo.png" alt="Pjotters" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="chat.html">Chat</a></li>
+                <li><a href="image-recognition.html">Beeldherkenning</a></li>
+                <li><a href="live-detection.html">Live Detectie</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="ai-tools">
+        <div class="tool-section live-detection">
+            <h2>Live Object Detectie</h2>
+            <p>Real-time object herkenning met je webcam</p>
+            <div class="camera-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="overlay"></canvas>
+                <button onclick="toggleDetection()" class="cta-primary" id="toggleBtn">Start Detectie</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="live-detection.js"></script>
+</body>
+</html>
