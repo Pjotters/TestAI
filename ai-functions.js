@@ -4,18 +4,23 @@ let pipeline;
 
 async function initializeAI() {
     try {
-        // Wacht tot de transformers library geladen is
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        pipeline = window.transformers.pipeline;
+        // Wacht tot de pagina volledig geladen is
+        if (typeof pipeline === 'undefined') {
+            console.log('Wachten op Transformers.js...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+
+        // Initialiseer het model
+        const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/+esm');
         model = await pipeline('text-generation', 'Xenova/gpt2');
-        console.log('AI model geladen!');
+        console.log('AI model succesvol geladen!');
     } catch (error) {
         console.error('Error bij laden AI:', error);
     }
 }
 
 // Start initialisatie wanneer de pagina geladen is
-document.addEventListener('DOMContentLoaded', initializeAI);
+window.addEventListener('load', initializeAI);
 
 // Chatbot functie
 async function sendMessage() {
