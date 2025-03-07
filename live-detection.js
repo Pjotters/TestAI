@@ -71,9 +71,6 @@ function drawDetections(detections, ctx) {
     const canvas = ctx.canvas;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Log de detecties om de structuur te zien
-    console.log('Detecties:', detections);
-    
     // Controleer of detections een array is
     if (!Array.isArray(detections)) {
         console.error('Geen geldige detecties ontvangen');
@@ -82,14 +79,13 @@ function drawDetections(detections, ctx) {
     
     detections.forEach(detection => {
         // Controleer of we een geldig box object hebben
-        if (!detection.box || detection.box.length !== 4) {
+        if (!detection.box || typeof detection.box !== 'object') {
             console.error('Ongeldige box data:', detection);
             return;
         }
         
-        // Haal de coördinaten op en rond ze af naar hele getallen
-        const box = detection.box.map(coord => Math.round(coord));
-        const [x0, y0, x1, y1] = box;
+        // Haal de coördinaten op uit het box object
+        const { xmin, ymin, xmax, ymax } = detection.box;
         
         // Bereken score percentage
         const score = detection.score || 0;
@@ -98,17 +94,17 @@ function drawDetections(detections, ctx) {
         // Teken box
         ctx.strokeStyle = '#10a37f';
         ctx.lineWidth = 3;
-        ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+        ctx.strokeRect(xmin, ymin, xmax - xmin, ymax - ymin);
         
         // Teken label achtergrond
         ctx.fillStyle = '#10a37f';
         ctx.font = '16px Inter';
         const textWidth = ctx.measureText(label).width;
-        ctx.fillRect(x0, y0 - 25, textWidth + 10, 25);
+        ctx.fillRect(xmin, ymin - 25, textWidth + 10, 25);
         
         // Teken label tekst
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(label, x0 + 5, y0 - 7);
+        ctx.fillText(label, xmin + 5, ymin - 7);
     });
 }
 
