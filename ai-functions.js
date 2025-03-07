@@ -1,42 +1,7 @@
 // Globale variabelen
-const HF_API_URL = "https://api-inference.huggingface.co/models/openai-community/gpt2";
-const HF_API_KEY = config.API_KEY; // Direct gebruik van config object
+const HF_API_URL = "https://api-inference.huggingface.co/models/pdelobelle/robbert-v2-dutch-base";
+const HF_API_KEY = config.API_KEY;
 
-async function initializeAI() {
-    if (!HF_API_KEY) {
-        console.error('API key niet gevonden');
-        return;
-    }
-    try {
-        const response = await fetch(HF_API_URL, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                inputs: "Test bericht",
-                parameters: {
-                    max_length: 50,
-                    num_return_sequences: 1
-                }
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('API verbinding mislukt');
-        }
-        console.log('AI model succesvol verbonden!');
-    } catch (error) {
-        console.error('Error bij verbinden met API:', error);
-        setTimeout(initializeAI, 5000);
-    }
-}
-
-// Start initialisatie wanneer de pagina geladen is
-document.addEventListener('DOMContentLoaded', initializeAI);
-
-// Chatbot functie
 async function sendMessage() {
     const userInput = document.getElementById('userInput');
     const message = userInput.value;
@@ -56,8 +21,10 @@ async function sendMessage() {
             body: JSON.stringify({
                 inputs: message,
                 parameters: {
-                    max_length: 50,
-                    num_return_sequences: 1
+                    max_new_tokens: 50,
+                    temperature: 0.7,
+                    do_sample: true,
+                    top_k: 50
                 }
             })
         });
@@ -75,6 +42,11 @@ async function sendMessage() {
         chatMessages.innerHTML += `<div class="bot-message error">Sorry, er ging iets mis: ${error.message}</div>`;
     }
 }
+
+// Verwijder de initializeAI functie omdat we geen lokaal model meer laden
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Chat systeem gereed');
+});
 
 // Beeldherkenning met TensorFlow.js
 async function analyzeImage() {
