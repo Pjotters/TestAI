@@ -1,5 +1,5 @@
 // Globale variabelen
-const HF_API_URL = "https://api-inference.huggingface.co/models/pdelobelle/robbert-v2-dutch-base";
+const HF_API_URL = "https://api-inference.huggingface.co/models/GroNLP/gpt2-small-dutch";  // Ander Nederlands model
 const HF_API_KEY = config.API_KEY;
 
 async function sendMessage() {
@@ -12,25 +12,26 @@ async function sendMessage() {
     userInput.value = '';
 
     try {
-        const response = await fetch(HF_API_URL, {
+        const response = await fetch('https://cors-anywhere.herokuapp.com/' + HF_API_URL, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${HF_API_KEY}`,
                 "Content-Type": "application/json",
+                "Origin": window.location.origin
             },
             body: JSON.stringify({
                 inputs: message,
                 parameters: {
-                    max_new_tokens: 50,
+                    max_length: 100,
                     temperature: 0.7,
-                    do_sample: true,
-                    top_k: 50
+                    top_p: 0.9,
+                    do_sample: true
                 }
             })
         });
 
         if (!response.ok) {
-            throw new Error('API request mislukt');
+            throw new Error(`API request mislukt: ${response.status}`);
         }
 
         const result = await response.json();
@@ -43,7 +44,7 @@ async function sendMessage() {
     }
 }
 
-// Verwijder de initializeAI functie omdat we geen lokaal model meer laden
+// Start wanneer de pagina geladen is
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Chat systeem gereed');
 });
