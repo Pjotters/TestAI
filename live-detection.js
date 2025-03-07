@@ -1,3 +1,6 @@
+// Globale variabelen
+const HF_API_KEY = config.API_KEY;
+
 let isDetecting = false;
 let detectInterval;
 
