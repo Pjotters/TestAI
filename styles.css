@@ -129,6 +129,63 @@ footer {
     gap: 2rem;
 }
 
+/* Features Page Styling */
+.features-hero {
+    background: linear-gradient(45deg, #0097a7, #1a237e);
+}
+
+.features-container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    background: var(--primary-color);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.feature-icon .material-icons {
+    color: white;
+    font-size: 30px;
+}
+
+.feature-card h2 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.feature-card ul {
+    margin-top: 1rem;
+    padding-left: 1.5rem;
+}
+
+.feature-card li {
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-links {
@@ -137,5 +194,9 @@ footer {
     
     .hero h1 {
         font-size: 2.5rem;
+    }
+
+    .features-container {
+        grid-template-columns: 1fr;
     }
 } 

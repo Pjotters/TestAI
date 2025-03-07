@@ -99,4 +99,12 @@
 .bot-message {
     background-color: #f0f0f0;
     margin-right: auto;
+}
+
+.bot-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
 } 

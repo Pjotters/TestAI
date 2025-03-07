@@ -6,7 +6,8 @@ let model;
 
 async function initializeAI() {
     try {
-        const pipeline = await window.pipeline;
+        // Wacht tot de pipeline beschikbaar is
+        const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/dist/transformers.min.js');
         model = await pipeline('text-generation', 'Xenova/gpt2');
         console.log('AI model geladen!');
     } catch (error) {
@@ -14,8 +15,8 @@ async function initializeAI() {
     }
 }
 
-// Verwijder de dubbele loadModel functie
-document.addEventListener('DOMContentLoaded', initializeAI);
+// Start initialisatie wanneer de pagina geladen is
+window.addEventListener('load', initializeAI);
 
 // Chatbot functie met Hugging Face
 async function sendMessage() {
@@ -29,17 +30,23 @@ async function sendMessage() {
     userInput.value = '';
 
     try {
-        // Genereer antwoord met Hugging Face model
+        if (!model) {
+            throw new Error('AI model is nog niet geladen');
+        }
+
+        // Genereer antwoord
         const result = await model(message, {
             max_length: 50,
             temperature: 0.7
         });
         
         // Toon AI antwoord
-        chatMessages.innerHTML += `<div class="bot-message">${result[0].generated_text}</div>`;
+        const response = result[0].generated_text;
+        chatMessages.innerHTML += `<div class="bot-message">${response}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
     } catch (error) {
         console.error('Error:', error);
+        chatMessages.innerHTML += `<div class="bot-message error">Sorry, er ging iets mis: ${error.message}</div>`;
     }
 }
 
