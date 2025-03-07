@@ -1,4 +1,5 @@
 // Globale variabelen
+const HF_API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50";
 const HF_API_KEY = config.API_KEY;
 
 let isDetecting = false;
@@ -42,7 +43,7 @@ async function detectObjects() {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
 
-        const response = await fetch("https://api-inference.huggingface.co/models/facebook/detr-resnet-50", {
+        const response = await fetch(HF_API_URL, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${HF_API_KEY}`,
