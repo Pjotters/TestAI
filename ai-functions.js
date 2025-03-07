@@ -1,26 +1,22 @@
-// Verwijder de pipeline import
-let model;
-let pipeline;
+// Globale variabelen
+let generator;
 
 async function initializeAI() {
     try {
-        // Wacht tot de pagina volledig geladen is
-        if (typeof pipeline === 'undefined') {
-            console.log('Wachten op Transformers.js...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-
-        // Initialiseer het model
-        const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/+esm');
-        model = await pipeline('text-generation', 'Xenova/gpt2');
+        const { pipeline } = await import('@xenova/transformers');
+        generator = await pipeline('text-generation', 'gpt2', {
+            max_length: 50,
+            num_return_sequences: 1
+        });
         console.log('AI model succesvol geladen!');
     } catch (error) {
         console.error('Error bij laden AI:', error);
+        setTimeout(initializeAI, 5000);
     }
 }
 
 // Start initialisatie wanneer de pagina geladen is
-window.addEventListener('load', initializeAI);
+document.addEventListener('DOMContentLoaded', initializeAI);
 
 // Chatbot functie
 async function sendMessage() {
@@ -34,17 +30,11 @@ async function sendMessage() {
     userInput.value = '';
 
     try {
-        if (!model) {
+        if (!generator) {
             throw new Error('AI model is nog niet geladen');
         }
 
-        // Genereer antwoord
-        const result = await model(message, {
-            max_length: 50,
-            temperature: 0.7
-        });
-        
-        // Toon AI antwoord
+        const result = await generator(message);
         const response = result[0].generated_text;
         chatMessages.innerHTML += `<div class="bot-message">${response}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
