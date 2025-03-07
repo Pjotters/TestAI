@@ -1,5 +1,5 @@
 // Gebruik de Transformers.js pipeline
-import { pipeline } from '@xenova/transformers';
+const { pipeline } = window.transformers;
 
 let model;
 async function loadModel() {
@@ -103,4 +103,14 @@ function applyFilter(filterType) {
     cv.imshow(canvas, dst);
     src.delete();
     dst.delete();
+}
+
+function displayImageResults(predictions) {
+    const resultsDiv = document.getElementById('imageResults');
+    resultsDiv.innerHTML = '<h3>Resultaten:</h3>';
+    
+    // Toon top 3 voorspellingen
+    for (let i = 0; i < 3; i++) {
+        resultsDiv.innerHTML += `<p>Voorspelling ${i + 1}: ${predictions[i]}</p>`;
+    }
 } 

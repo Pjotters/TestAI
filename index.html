@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pjotters-AI | Gratis AI Tools</title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="ai-styles.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -91,8 +91,13 @@
         </div>
     </footer>
 
+    <!-- Laad eerst de externe libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://docs.opencv.org/master/opencv.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers"></script>
+    
+    <!-- Daarna je eigen scripts -->
+    <script src="image-recognition.js"></script>
     <script src="ai-functions.js"></script>
-</body>
-</html>
 </body>
 </html>
