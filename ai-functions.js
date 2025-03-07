@@ -1,13 +1,12 @@
-// Gebruik de Transformers.js pipeline
-const { pipeline } = window.transformers;
-
-// Wacht tot Transformers.js geladen is
+// Verwijder de pipeline import
 let model;
+let pipeline;
 
 async function initializeAI() {
     try {
-        // Wacht tot de pipeline beschikbaar is
-        const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/dist/transformers.min.js');
+        // Wacht tot de transformers library geladen is
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        pipeline = window.transformers.pipeline;
         model = await pipeline('text-generation', 'Xenova/gpt2');
         console.log('AI model geladen!');
     } catch (error) {
@@ -16,9 +15,9 @@ async function initializeAI() {
 }
 
 // Start initialisatie wanneer de pagina geladen is
-window.addEventListener('load', initializeAI);
+document.addEventListener('DOMContentLoaded', initializeAI);
 
-// Chatbot functie met Hugging Face
+// Chatbot functie
 async function sendMessage() {
     const userInput = document.getElementById('userInput');
     const message = userInput.value;
