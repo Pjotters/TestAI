@@ -1,5 +1,5 @@
 // Globale variabelen
-const HF_API_URL = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-125M";
+const HF_API_URL = "https://api-inference.huggingface.co/models/microsoft/Phi-4-multimodal-instruct";
 const HF_API_KEY = config.API_KEY;
 
 async function sendMessage() {
@@ -19,11 +19,13 @@ async function sendMessage() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                inputs: "Je bent een Nederlandse AI assistent. Beantwoord deze vraag: " + message,
+                inputs: `<|system|>Je bent een behulpzame Nederlandse AI assistent.
+<|user|>${message}
+<|assistant|>`,
                 parameters: {
-                    max_new_tokens: 100,
+                    max_new_tokens: 150,
                     temperature: 0.7,
-                    top_p: 0.9,
+                    top_p: 0.95,
                     do_sample: true,
                     return_full_text: false
                 }
@@ -35,7 +37,11 @@ async function sendMessage() {
         }
 
         const result = await response.json();
-        const generatedText = result[0].generated_text;
+        let generatedText = result[0].generated_text;
+        
+        // Verwijder de prompt uit het antwoord
+        generatedText = generatedText.replace(/<\|assistant\|>/, '').trim();
+        
         chatMessages.innerHTML += `<div class="bot-message">${generatedText}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
     } catch (error) {
