@@ -1,5 +1,5 @@
 // Globale variabelen
-const HF_API_URL = "https://api-inference.huggingface.co/models/microsoft/Phi-4-multimodal-instruct";
+const HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
 const HF_API_KEY = config.API_KEY;
 
 async function sendMessage() {
@@ -19,9 +19,8 @@ async function sendMessage() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                inputs: `<|system|>Je bent een behulpzame Nederlandse AI assistent.
-<|user|>${message}
-<|assistant|>`,
+                inputs: `<s>[INST] Je bent een behulpzame Nederlandse AI assistent. 
+Beantwoord deze vraag in het Nederlands: ${message} [/INST]`,
                 parameters: {
                     max_new_tokens: 150,
                     temperature: 0.7,
@@ -40,7 +39,7 @@ async function sendMessage() {
         let generatedText = result[0].generated_text;
         
         // Verwijder de prompt uit het antwoord
-        generatedText = generatedText.replace(/<\|assistant\|>/, '').trim();
+        generatedText = generatedText.replace(/\[\/INST\]/, '').trim();
         
         chatMessages.innerHTML += `<div class="bot-message">${generatedText}</div>`;
         chatMessages.scrollTop = chatMessages.scrollHeight;
