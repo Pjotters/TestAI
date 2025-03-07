@@ -14,9 +14,8 @@ async function setupWebcam() {
             } 
         });
         video.srcObject = stream;
-        await video.play(); // Zorg ervoor dat de video start
+        await video.play();
         
-        // Stel canvas afmetingen in
         const canvas = document.getElementById('overlay');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -34,16 +33,6 @@ async function detectObjects() {
     const canvas = document.getElementById('overlay');
     const ctx = canvas.getContext('2d');
     
-    // Voeg loading indicator toe
-    const container = document.querySelector('.camera-container');
-    if (!container.querySelector('.detection-status')) {
-        const statusDiv = document.createElement('div');
-        statusDiv.className = 'detection-status';
-        statusDiv.innerHTML = 'Detectie actief<span class="dots">...</span>';
-        container.insertBefore(statusDiv, container.querySelector('#toggleBtn'));
-    }
-    
-    // Controleer of video speelt
     if (video.readyState !== video.HAVE_ENOUGH_DATA) {
         requestAnimationFrame(detectObjects);
         return;
@@ -69,17 +58,11 @@ async function detectObjects() {
         const result = await response.json();
         drawDetections(result, ctx);
         
-        // Update status met aantal detecties
-        const statusDiv = container.querySelector('.detection-status');
-        statusDiv.innerHTML = `${result.length} object(en) gedetecteerd`;
-        
         if (isDetecting) {
             setTimeout(detectObjects, 1000);
         }
     } catch (error) {
         console.error('Detectie error:', error);
-        const statusDiv = container.querySelector('.detection-status');
-        statusDiv.innerHTML = `Error: ${error.message}`;
         if (isDetecting) {
             setTimeout(detectObjects, 1000);
         }
@@ -94,17 +77,14 @@ function drawDetections(detections, ctx) {
         const [x0, y0, x1, y1] = detection.box;
         const label = `${detection.label} ${Math.round(detection.score * 100)}%`;
         
-        // Teken box
         ctx.strokeStyle = '#10a37f';
         ctx.lineWidth = 3;
         ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
         
-        // Teken label achtergrond
         ctx.fillStyle = '#10a37f';
         const textWidth = ctx.measureText(label).width;
         ctx.fillRect(x0, y0 - 25, textWidth + 10, 25);
         
-        // Teken label tekst
         ctx.fillStyle = '#ffffff';
         ctx.font = '16px Inter';
         ctx.fillText(label, x0 + 5, y0 - 7);
@@ -113,20 +93,13 @@ function drawDetections(detections, ctx) {
 
 function toggleDetection() {
     const btn = document.getElementById('toggleBtn');
-    const container = document.querySelector('.camera-container');
     isDetecting = !isDetecting;
     
     if (isDetecting) {
         btn.textContent = 'Stop Detectie';
-        btn.classList.add('active');
         detectObjects();
     } else {
         btn.textContent = 'Start Detectie';
-        btn.classList.remove('active');
-        // Verwijder status indicator
-        const statusDiv = container.querySelector('.detection-status');
-        if (statusDiv) statusDiv.remove();
-        // Clear canvas
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
