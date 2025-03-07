@@ -1,21 +1,12 @@
 // Gebruik de Transformers.js pipeline
 const { pipeline } = window.transformers;
 
+// Wacht tot Transformers.js geladen is
 let model;
-async function loadModel() {
-    try {
-        // Gebruik een Nederlands GPT2 model
-        model = await pipeline('text-generation', 'GroNLP/gpt2-small-dutch');
-    } catch (error) {
-        console.error('Model laden mislukt:', error);
-    }
-}
 
-loadModel();
-
-// Initialiseer de chatbot
 async function initializeAI() {
     try {
+        const pipeline = await window.pipeline;
         model = await pipeline('text-generation', 'Xenova/gpt2');
         console.log('AI model geladen!');
     } catch (error) {
@@ -23,8 +14,8 @@ async function initializeAI() {
     }
 }
 
-// Start initialisatie
-initializeAI();
+// Verwijder de dubbele loadModel functie
+document.addEventListener('DOMContentLoaded', initializeAI);
 
 // Chatbot functie met Hugging Face
 async function sendMessage() {
