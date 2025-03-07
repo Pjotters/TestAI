@@ -1,29 +1,13 @@
 // Globale variabelen
 const HF_API_URL = "https://api-inference.huggingface.co/models/openai-community/gpt2";
-let HF_API_KEY;
-
-async function loadConfig() {
-    try {
-        const response = await fetch('config.js');
-        const configText = await response.text();
-        // Extraheer API key uit config bestand
-        const match = configText.match(/API_KEY: ['"]([^'"]+)['"]/);
-        if (match) {
-            HF_API_KEY = match[1];
-        }
-    } catch (error) {
-        console.error('Kon config niet laden:', error);
-    }
-}
+const HF_API_KEY = config.API_KEY; // Direct gebruik van config object
 
 async function initializeAI() {
-    await loadConfig();
     if (!HF_API_KEY) {
         console.error('API key niet gevonden');
         return;
     }
     try {
-        // Test de API verbinding
         const response = await fetch(HF_API_URL, {
             method: "POST",
             headers: {
