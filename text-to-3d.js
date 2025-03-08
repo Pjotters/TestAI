@@ -1,3 +1,5 @@
+const HF_API_KEY = config.API_KEY;
+
 async function generate3DModel(prompt) {
     const statusElement = document.getElementById('status');
     statusElement.textContent = 'Bezig met genereren...';
