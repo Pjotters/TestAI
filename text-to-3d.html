@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Object Detectie | Pjotters-AI</title>
+    <title>Tekst naar 3D | Pjotters-AI</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="ai-styles.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -19,30 +19,27 @@
                 <li><a href="chat.html">Chat</a></li>
                 <li><a href="image-recognition.html">Beeldherkenning</a></li>
                 <li><a href="live-detection.html">Live Detectie</a></li>
+                <li><a href="text-to-3d.html">3D Generator</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="ai-tools">
-        <div class="tool-section live-detection">
-            <h2>Live Object Detectie</h2>
-            <p>Real-time object herkenning met je webcam (V.1.1)</p>
-            <div class="camera-container">
-                <video id="webcam" autoplay playsinline></video>
-                <canvas id="overlay"></canvas>
-                <button class="cta-primary" id="toggleBtn">Start Detectie</button>
+        <div class="tool-section text-to-3d">
+            <h2>Tekst naar 3D Model Generator</h2>
+            <p>Genereer 3D modellen vanuit tekstbeschrijvingen met AI</p>
+            
+            <div class="prompt-container">
+                <textarea id="modelPrompt" placeholder="Beschrijf het 3D model dat je wilt genereren... (bijvoorbeeld: 'een rode sportauto')"></textarea>
+                <button id="generateBtn" class="cta-primary">Genereer 3D Model</button>
             </div>
-            <div class="detection-list">
-                <h3>Gedetecteerde Objecten</h3>
-                <p>This AI is still in development, so it may not always be accurate.</p>
-                <p>Official it is made for ZipZop-AR (-pro)</p>
-                <ul id="detectionsList"></ul>
-            </div>
+
+            <div id="status" class="status-message"></div>
+            <div id="modelViewer"></div>
         </div>
     </div>
 
     <script src="config.js"></script>
-    <script src="ai-functions.js"></script>
-    <script src="live-detection.js"></script>
+    <script src="text-to-3d.js"></script>
 </body>
-</html>
+</html> 

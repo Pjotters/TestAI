@@ -330,4 +330,33 @@ footer {
     height: auto;
     border-radius: 8px;
     margin-bottom: 1rem;
+}
+
+.prompt-container {
+    margin: 20px 0;
+}
+
+#modelPrompt {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+}
+
+.status-message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    background: rgba(16, 163, 127, 0.1);
+    color: #10a37f;
+}
+
+#modelViewer {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f5f5;
 } 
