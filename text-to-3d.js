@@ -1,4 +1,5 @@
 const HF_API_KEY = config.API_KEY;
+const API_ENDPOINT = 'https://api-inference.huggingface.co/models/shap-e/shap-e';
 
 const MODEL_MAPPINGS = {
     'bril': 'https://modelviewer.dev/shared-assets/models/glasses.glb',
@@ -8,89 +9,101 @@ const MODEL_MAPPINGS = {
     // Voeg meer mappings toe
 };
 
-async function generate3DModel(prompt) {
-    const statusElement = document.getElementById('status');
-    const modelViewer = document.getElementById('modelViewer');
-    
-    // Preview tijdens genereren
-    modelViewer.innerHTML = `
-        <div class="generation-preview">
-            <div class="loading-spinner"></div>
-            <p>3D model wordt gegenereerd...</p>
-            <div class="progress-bar">
-                <div class="update-bar" style="width: 0%"></div>
-            </div>
-        </div>
-    `;
+class Text3DGenerator {
+    constructor() {
+        this.loadingManager = new LoadingStateManager('modelViewer');
+        this.setupEventListeners();
+    }
 
-    try {
-        // Verbeterde parameters voor hogere kwaliteit
-        const response = await fetch("https://api-inference.huggingface.co/models/openai/shap-e", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                inputs: prompt,
-                parameters: {
-                    num_inference_steps: 128,
-                    guidance_scale: 15.0,
-                    noise_level: 0.1,
-                    num_views: 12,
-                    image_size: 256,
-                    output_formats: ["glb", "obj", "usdz"]
-                }
-            }),
+    setupEventListeners() {
+        document.getElementById('generateBtn')?.addEventListener('click', () => {
+            const prompt = document.getElementById('prompt').value;
+            this.generate3DModel(prompt);
         });
+    }
 
-        if (!response.ok) {
-            throw new Error(`API request mislukt: ${response.status}`);
+    async generate3DModel(prompt) {
+        try {
+            this.loadingManager.startLoading('3D model wordt gegenereerd...', true);
+            
+            // Eerst checken of we een voorgedefinieerd model hebben
+            const mappedModel = MODEL_MAPPINGS[prompt.toLowerCase()];
+            if (mappedModel) {
+                await this.loadPredefinedModel(mappedModel);
+                return;
+            }
+
+            // Anders genereren we een nieuw model
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${HF_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inputs: prompt,
+                    parameters: {
+                        num_inference_steps: 50,
+                        guidance_scale: 7.5
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request mislukt: ${response.status}`);
+            }
+
+            const modelData = await response.blob();
+            const modelUrl = URL.createObjectURL(modelData);
+            
+            this.displayModel(modelUrl);
+            this.loadingManager.stopLoading(true);
+            
+            // Trigger feedback event
+            document.dispatchEvent(new CustomEvent('modelGenerated'));
+            
+            // Track successful generation
+            AnalyticsManager.trackEvent('3D Generation', 'Success', prompt);
+
+        } catch (error) {
+            console.error('Generatie error:', error);
+            this.loadingManager.showError(error);
+            
+            // Track error
+            AnalyticsManager.trackEvent('3D Generation', 'Error', error.message);
         }
+    }
 
-        const result = await response.json();
-        
-        // Toon het 3D model met verbeterde viewer opties
+    async loadPredefinedModel(modelUrl) {
+        try {
+            this.displayModel(modelUrl);
+            this.loadingManager.stopLoading(true);
+        } catch (error) {
+            this.loadingManager.showError(error);
+        }
+    }
+
+    displayModel(modelUrl) {
+        const modelViewer = document.getElementById('modelViewer');
         modelViewer.innerHTML = `
             <model-viewer
-                src="${result.glb_url}"
+                src="${modelUrl}"
                 camera-controls
                 auto-rotate
                 ar
                 shadow-intensity="1"
                 exposure="1"
-                environment-image="neutral"
-                camera-orbit="45deg 55deg 2.5m"
-                field-of-view="30deg"
-                class="interactive-viewer"
-                style="width: 100%; height: 400px;">
-                <button class="fullscreen-btn" onclick="toggleFullscreen(this.parentElement)">
-                    <span class="material-icons">fullscreen</span>
+                style="width: 100%; height: 500px;"
+            ></model-viewer>
+            <div class="model-controls">
+                <button onclick="downloadModel('${modelUrl}')" class="cta-secondary">
+                    <span class="material-icons">download</span> Download
                 </button>
-                <div class="model-controls">
-                    <button onclick="resetView(this.parentElement.parentElement)">
-                        <span class="material-icons">restart_alt</span>
-                    </button>
-                    <button onclick="toggleAutoRotate(this.parentElement.parentElement)">
-                        <span class="material-icons">rotation_3d</span>
-                    </button>
-                </div>
-                <div class="progress-bar hide" slot="progress-bar">
-                    <div class="update-bar"></div>
-                </div>
-            </model-viewer>
-            <div class="controls">
-                <button onclick="downloadModel('${result.glb_url}', 'glb')" class="cta-primary">Download GLB</button>
-                <button onclick="downloadModel('${result.obj_url}', 'obj')" class="cta-secondary">Download OBJ</button>
-                <button onclick="downloadModel('${result.usdz_url}', 'usdz')" class="cta-secondary">Download USDZ</button>
+                <button onclick="shareModel('${modelUrl}')" class="cta-secondary">
+                    <span class="material-icons">share</span> Deel
+                </button>
             </div>
         `;
-
-        statusElement.textContent = '3D model succesvol gegenereerd!';
-        
-    } catch (error) {
-        console.error('Generatie error:', error);
-        statusElement.textContent = `Error: ${error.message}`;
     }
 }
 

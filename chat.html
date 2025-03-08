@@ -3,38 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pjotters-AI | Gratis AI chat</title>
+    <title>Chat | Pjotters-AI</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="ai-styles.css">
+    <link rel="stylesheet" href="feedback-styles.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="glass-nav">
-        <div class="nav-content">
-            <div class="logo">
-                <img src="../bestanden/Images/zipzop-logo.png" alt="Pjotters" class="logo-img">
-            </div>
-            <ul class="nav-links">
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="Features.html">Features</a></li>
-                <li><a href="../login.html" class="login-btn">Inloggen</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <section class="hero ai-hero">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 class="animated-text">chat-AI</h1>
-            <p class="animated-text-delay">Gratis AI chat voor iedereen (v.1)</p>
-        </div>
-    </section>
+    <!-- Shared Navigation -->
+    <div id="nav-placeholder"></div>
 
     <div class="ai-tools">
         <div class="tool-section chat-bot">
             <h2>AI Chat Assistant</h2>
-            <p>Deze chat-AI is gemaakt met Pjotters-Intelligence-v.1 en met het systeem van Mistral-7B</p>
+            <p>Deze chat-AI is gemaakt met Pjotters-Intelligence-v.1 en Mistral-7B</p>
             <div class="chat-container">
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input">
@@ -91,7 +74,17 @@
 
     <!-- Eigen scripts -->
     <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="feedback.js"></script>
     <script src="ai-functions.js"></script>
-    <script src="rate-limiter.js"></script>
+    <script>
+        // Load shared navigation
+        fetch('shared-nav.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('nav-placeholder').innerHTML = data);
+
+        // Initialize feedback system
+        const feedbackSystem = new FeedbackSystem();
+    </script>
 </body>
 </html>

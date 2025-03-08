@@ -6,11 +6,25 @@
     <title>Pjotters-AI | Gratis AI Tools</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="ai-styles.css">
+    <link rel="stylesheet" href="feedback-styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="glass-nav">
-        <!-- Zelfde navigatie als hierboven -->
+        <div class="nav-content">
+            <div class="logo">
+                <img src="../bestanden/Images/zipzop-logo.png" alt="Pjotters" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="chat.html">Chat</a></li>
+                <li><a href="image-recognition.html">Beeldherkenning</a></li>
+                <li><a href="live-detection.html">Live Detectie</a></li>
+                <li><a href="text-to-3d.html">3D Generator</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="community.html">Community</a></li>
+            </ul>
+        </div>
     </nav>
 
     <div class="features-container">
@@ -29,17 +43,39 @@
             <p>Genereer 3D modellen vanuit tekstbeschrijvingen met AI</p>
             <a href="text-to-3d.html" class="cta-primary">Start Generator</a>
         </div>
-    <div class="feature-card">
-        <h2>Toekomstig AI-Image Generator</h2>
-        <p>Genereer afbeeldingen vanuit tekstbeschrijvingen met AI</p>
-        <a href="text-to-3d.html" class="cta-primary">Start Generator</a>
-    </div>
+        <div class="feature-card">
+            <h2>Toekomstig AI-Image Generator</h2>
+            <p>Genereer afbeeldingen vanuit tekstbeschrijvingen met AI</p>
+            <a href="text-to-3d.html" class="cta-primary">Start Generator</a>
         </div>
         <div class="feature-card">
             <h2>Beeldherkenning</h2>
             <p>Analyseer afbeeldingen met AI</p>
             <a href="image-recognition.html" class="cta-primary">Start Analyse</a>
         </div>
+        <div class="feature-card">
+            <h2>Community & Portfolio</h2>
+            <p>Deel je AI creaties en ontdek wat anderen maken</p>
+            <div class="feature-actions">
+                <a href="portfolio.html" class="cta-secondary">Mijn Portfolio</a>
+                <a href="community.html" class="cta-primary">Community</a>
+            </div>
+        </div>
+        <div class="feature-card">
+            <h2>Tutorial Center</h2>
+            <p>Leer hoe je het beste uit onze AI tools haalt</p>
+            <a href="tutorial.html" class="cta-primary">Start Tutorial</a>
+        </div>
     </div>
+
+    <script src="utils.js"></script>
+    <script src="feedback.js"></script>
+    <script>
+        // Initialiseer feedback systeem
+        const feedbackSystem = new FeedbackSystem();
+        
+        // Initialiseer analytics
+        AnalyticsManager.trackEvent('PageView', 'Homepage');
+    </script>
 </body>
 </html>
