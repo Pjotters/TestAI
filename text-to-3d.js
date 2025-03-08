@@ -3,7 +3,7 @@ async function generate3DModel(prompt) {
     statusElement.textContent = 'Bezig met genereren...';
     
     try {
-        const response = await fetch("https://api-inference.huggingface.co/models/openai/shap-e", {
+        const response = await fetch("https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${HF_API_KEY}`,
@@ -12,8 +12,11 @@ async function generate3DModel(prompt) {
             body: JSON.stringify({
                 inputs: prompt,
                 parameters: {
-                    num_inference_steps: 64,
-                    guidance_scale: 7.5
+                    negative_prompt: "blurry, bad quality, distorted",
+                    num_inference_steps: 30,
+                    guidance_scale: 7.5,
+                    width: 512,
+                    height: 512
                 }
             }),
         });
@@ -22,10 +25,14 @@ async function generate3DModel(prompt) {
             throw new Error(`API request mislukt: ${response.status}`);
         }
 
-        const result = await response.blob();
-        const modelUrl = URL.createObjectURL(result);
-        displayModel(modelUrl);
-        statusElement.textContent = 'Model succesvol gegenereerd!';
+        const imageBlob = await response.blob();
+        const imageUrl = URL.createObjectURL(imageBlob);
+        
+        // Toon eerst de gegenereerde afbeelding
+        displayGeneratedImage(imageUrl);
+        
+        // Start de 3D conversie
+        convertToGLB(imageUrl);
         
     } catch (error) {
         console.error('Generatie error:', error);
@@ -33,16 +40,21 @@ async function generate3DModel(prompt) {
     }
 }
 
-function displayModel(modelUrl) {
+function displayGeneratedImage(imageUrl) {
     const viewer = document.getElementById('modelViewer');
     viewer.innerHTML = `
-        <model-viewer
-            src="${modelUrl}"
-            auto-rotate
-            camera-controls
-            shadow-intensity="1"
-            style="width: 100%; height: 400px;">
-        </model-viewer>
+        <img src="${imageUrl}" style="max-width: 100%; border-radius: 8px;" />
+        <p class="status-message">3D conversie wordt voorbereid...</p>
+    `;
+}
+
+async function convertToGLB(imageUrl) {
+    // Hier kunnen we later de 3D conversie implementeren
+    // Voor nu tonen we een bericht dat dit nog in ontwikkeling is
+    const statusElement = document.getElementById('status');
+    statusElement.innerHTML = `
+        <p>🚧 3D conversie functionaliteit is nog in ontwikkeling.</p>
+        <p>De afbeelding is wel succesvol gegenereerd!</p>
     `;
 }
 
