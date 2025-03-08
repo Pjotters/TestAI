@@ -56,47 +56,61 @@ class Text3DGenerator {
                 return;
             }
 
-            // Anders genereren we een nieuw model via Hugging Face
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${HF_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        num_inference_steps: 50,
-                        guidance_scale: 7.5
-                    }
-                })
-            });
+            // Probeer eerst het Shap-E model
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${HF_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inputs: prompt,
+                        parameters: {
+                            num_inference_steps: 50,
+                            guidance_scale: 7.5
+                        }
+                    })
+                });
 
-            if (!response.ok) {
-                throw new Error(`API request mislukt: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`API request mislukt: ${response.status}`);
+                }
+
+                const modelData = await response.blob();
+                const modelUrl = URL.createObjectURL(modelData);
+                this.displayModel(modelUrl);
+                this.showStatus('3D model succesvol gegenereerd!', 'success');
+                
+            } catch (apiError) {
+                // Als Shap-E faalt, gebruik een fallback model
+                console.warn('Shap-E API fout, gebruik fallback:', apiError);
+                const fallbackModel = this.getFallbackModel(prompt);
+                await this.loadPredefinedModel(fallbackModel);
             }
 
-            const modelData = await response.blob();
-            const modelUrl = URL.createObjectURL(modelData);
-            
-            this.displayModel(modelUrl);
-            this.showStatus('3D model succesvol gegenereerd!', 'success');
-            
-            // Trigger feedback event
-            document.dispatchEvent(new CustomEvent('modelGenerated'));
-            
             // Track successful generation
             AnalyticsManager.trackEvent('3D Generation', 'Success', prompt);
 
         } catch (error) {
-            this.showStatus('Er ging iets mis bij het genereren', 'error');
+            this.showStatus('Er ging iets mis bij het genereren. Probeer een ander zoekwoord.', 'error');
             console.error('Generatie error:', error);
-            
-            // Track error
             AnalyticsManager.trackEvent('3D Generation', 'Error', error.message);
         } finally {
             this.generateBtn.disabled = false;
         }
+    }
+
+    getFallbackModel(prompt) {
+        // Zoek naar keywords in de prompt
+        const keywords = prompt.toLowerCase().split(' ');
+        for (const [key, url] of Object.entries(MODEL_MAPPINGS)) {
+            if (keywords.some(word => word.includes(key))) {
+                return url;
+            }
+        }
+        // Standaard fallback model
+        return 'https://modelviewer.dev/shared-assets/models/cube.glb';
     }
 
     async loadPredefinedModel(modelUrl) {
