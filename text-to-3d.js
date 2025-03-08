@@ -2,13 +2,13 @@ const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e'
 const HF_API_KEY = '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'; // Vul hier je Hugging Face API key in
 
 const MODEL_MAPPINGS = {
-    'auto': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Car/glTF-Binary/Car.glb',
-    'stoel': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Chair/glTF-Binary/Chair.glb',
-    'tafel': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Table/glTF-Binary/Table.glb',
-    'camera': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Camera/glTF-Binary/Camera.glb',
-    'robot': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/RobotExpressive/glTF-Binary/RobotExpressive.glb',
-    'boom': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Tree/glTF-Binary/Tree.glb',
-    'kubus': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF-Binary/Box.glb'
+    'auto': 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+    'stoel': 'https://modelviewer.dev/shared-assets/models/chair.glb',
+    'tafel': 'https://modelviewer.dev/shared-assets/models/NeilArmstrong.glb',
+    'camera': 'https://modelviewer.dev/shared-assets/models/camera.glb',
+    'robot': 'https://modelviewer.dev/shared-assets/models/RobotExpressive.glb',
+    'boom': 'https://modelviewer.dev/shared-assets/models/pot-plant.glb',
+    'kubus': 'https://modelviewer.dev/shared-assets/models/cube.glb'
 };
 
 class Text3DGenerator {
@@ -51,46 +51,57 @@ class Text3DGenerator {
             this.showStatus('Bezig met genereren...', 'loading');
             this.generateBtn.disabled = true;
 
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${HF_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: {
-                        num_inference_steps: 64,
-                        guidance_scale: 15.0
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API request mislukt: ${response.status}`);
+            // Eerst checken of we een voorgedefinieerd model hebben
+            const mappedModel = MODEL_MAPPINGS[prompt.toLowerCase()];
+            if (mappedModel) {
+                await this.loadPredefinedModel(mappedModel);
+                return;
             }
 
-            const modelData = await response.blob();
-            const modelUrl = URL.createObjectURL(modelData);
-            
-            this.displayModel(modelUrl);
-            this.showStatus('3D model succesvol gegenereerd!', 'success');
-            
-            AnalyticsManager.trackEvent('3D Generation', 'Success', prompt);
+            // Probeer de API call met retry mechanisme
+            let retries = 3;
+            while (retries > 0) {
+                try {
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${HF_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            inputs: prompt,
+                            parameters: {
+                                num_inference_steps: 64,
+                                guidance_scale: 15.0
+                            }
+                        })
+                    });
+
+                    if (response.ok) {
+                        const modelData = await response.blob();
+                        const modelUrl = URL.createObjectURL(modelData);
+                        this.displayModel(modelUrl);
+                        this.showStatus('3D model succesvol gegenereerd!', 'success');
+                        return;
+                    }
+                    
+                    retries--;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } catch (error) {
+                    retries--;
+                    if (retries === 0) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            // Als we hier komen, gebruik fallback
+            throw new Error('API niet beschikbaar na meerdere pogingen');
 
         } catch (error) {
             console.error('Generatie error:', error);
-            
-            // Alleen fallback gebruiken als het een API error is
-            if (error.message.includes('API request mislukt')) {
-                this.showStatus('AI generatie niet beschikbaar, gebruik voorgedefinieerd model', 'info');
-                const fallbackModel = this.getFallbackModel(prompt);
-                await this.loadPredefinedModel(fallbackModel);
-            } else {
-                this.showStatus('Er ging iets mis bij het genereren. Probeer het opnieuw.', 'error');
-            }
-            
-            AnalyticsManager.trackEvent('3D Generation', 'Error', error.message);
+            this.showStatus('AI generatie niet beschikbaar, gebruik voorgedefinieerd model', 'info');
+            const fallbackModel = this.getFallbackModel(prompt);
+            await this.loadPredefinedModel(fallbackModel);
         } finally {
             this.generateBtn.disabled = false;
         }
