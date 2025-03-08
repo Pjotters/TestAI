@@ -1,12 +1,14 @@
-const HF_API_KEY = config.API_KEY;
-const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e';
+const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e-img2img';
+const HF_API_KEY = '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'; // Vul hier je Hugging Face API key in
 
 const MODEL_MAPPINGS = {
-    'bril': 'https://modelviewer.dev/shared-assets/models/glasses.glb',
-    'auto': 'https://modelviewer.dev/shared-assets/models/car.glb',
-    'stoel': 'https://modelviewer.dev/shared-assets/models/chair.glb',
-    'tafel': 'https://modelviewer.dev/shared-assets/models/table.glb',
-    // Voeg meer mappings toe
+    'auto': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Car/glTF-Binary/Car.glb',
+    'stoel': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Chair/glTF-Binary/Chair.glb',
+    'tafel': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Table/glTF-Binary/Table.glb',
+    'camera': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Camera/glTF-Binary/Camera.glb',
+    'robot': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/RobotExpressive/glTF-Binary/RobotExpressive.glb',
+    'boom': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Tree/glTF-Binary/Tree.glb',
+    'kubus': 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Box/glTF-Binary/Box.glb'
 };
 
 class Text3DGenerator {
@@ -49,52 +51,46 @@ class Text3DGenerator {
             this.showStatus('Bezig met genereren...', 'loading');
             this.generateBtn.disabled = true;
 
-            // Eerst checken of we een voorgedefinieerd model hebben
-            const mappedModel = MODEL_MAPPINGS[prompt.toLowerCase()];
-            if (mappedModel) {
-                await this.loadPredefinedModel(mappedModel);
-                return;
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${HF_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inputs: {
+                        prompt: prompt,
+                        num_inference_steps: 50,
+                        guidance_scale: 7.5,
+                        negative_prompt: "low quality, bad geometry, distorted"
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request mislukt: ${response.status}`);
             }
 
-            // Probeer eerst het Shap-E model
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${HF_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inputs: prompt,
-                        parameters: {
-                            num_inference_steps: 50,
-                            guidance_scale: 7.5
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API request mislukt: ${response.status}`);
-                }
-
-                const modelData = await response.blob();
-                const modelUrl = URL.createObjectURL(modelData);
-                this.displayModel(modelUrl);
-                this.showStatus('3D model succesvol gegenereerd!', 'success');
-                
-            } catch (apiError) {
-                // Als Shap-E faalt, gebruik een fallback model
-                console.warn('Shap-E API fout, gebruik fallback:', apiError);
-                const fallbackModel = this.getFallbackModel(prompt);
-                await this.loadPredefinedModel(fallbackModel);
-            }
-
-            // Track successful generation
+            const modelData = await response.blob();
+            const modelUrl = URL.createObjectURL(modelData);
+            
+            this.displayModel(modelUrl);
+            this.showStatus('3D model succesvol gegenereerd!', 'success');
+            
             AnalyticsManager.trackEvent('3D Generation', 'Success', prompt);
 
         } catch (error) {
-            this.showStatus('Er ging iets mis bij het genereren. Probeer een ander zoekwoord.', 'error');
             console.error('Generatie error:', error);
+            
+            // Alleen fallback gebruiken als het een API error is
+            if (error.message.includes('API request mislukt')) {
+                this.showStatus('AI generatie niet beschikbaar, gebruik voorgedefinieerd model', 'info');
+                const fallbackModel = this.getFallbackModel(prompt);
+                await this.loadPredefinedModel(fallbackModel);
+            } else {
+                this.showStatus('Er ging iets mis bij het genereren. Probeer het opnieuw.', 'error');
+            }
+            
             AnalyticsManager.trackEvent('3D Generation', 'Error', error.message);
         } finally {
             this.generateBtn.disabled = false;
@@ -104,13 +100,23 @@ class Text3DGenerator {
     getFallbackModel(prompt) {
         // Zoek naar keywords in de prompt
         const keywords = prompt.toLowerCase().split(' ');
+        
+        // Probeer eerst een exacte match
         for (const [key, url] of Object.entries(MODEL_MAPPINGS)) {
-            if (keywords.some(word => word.includes(key))) {
+            if (keywords.includes(key)) {
                 return url;
             }
         }
-        // Standaard fallback model
-        return 'https://modelviewer.dev/shared-assets/models/cube.glb';
+        
+        // Anders, zoek naar gedeeltelijke matches
+        for (const [key, url] of Object.entries(MODEL_MAPPINGS)) {
+            if (keywords.some(word => word.includes(key) || key.includes(word))) {
+                return url;
+            }
+        }
+        
+        // Standaard fallback model (kubus)
+        return MODEL_MAPPINGS.kubus;
     }
 
     async loadPredefinedModel(modelUrl) {
