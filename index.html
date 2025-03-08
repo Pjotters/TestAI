@@ -29,54 +29,69 @@
     </nav>
 
     <main class="features-container">
-        <div class="feature-card">
-            <h2>AI Chat Assistant</h2>
-            <p>Nederlandse chatbot met Mistral-7B</p>
-            <a href="chat.html" class="cta-primary">Start Chat</a>
-        </div>
-        <div class="feature-card">
-            <h2>Object Detection, live</h2>
-            <p>Analyseer live objecten met AI</p>
-            <a href="live-detection.html" class="cta-primary">Start detectie</a>
-        </div>
-        <div class="feature-card">
-            <h2>Tekst naar 3D Model Generator (Beta)</h2>
-            <p>Genereer 3D modellen vanuit tekstbeschrijvingen met AI</p>
-            <a href="text-to-3d.html" class="cta-primary">Start Generator</a>
-        </div>
-        <div class="feature-card">
-            <h2>Toekomstig AI-Image Generator</h2>
-            <p>Genereer afbeeldingen vanuit tekstbeschrijvingen met AI</p>
-            <a href="text-to-3d.html" class="cta-primary">Start Generator</a>
-        </div>
-        <div class="feature-card">
-            <h2>Beeldherkenning</h2>
-            <p>Analyseer afbeeldingen met AI</p>
-            <a href="image-recognition.html" class="cta-primary">Start Analyse</a>
-        </div>
-        <div class="feature-card">
-            <h2>Community & Portfolio</h2>
-            <p>Deel je AI creaties en ontdek wat anderen maken</p>
-            <div class="feature-actions">
-                <a href="portfolio.html" class="cta-secondary">Mijn Portfolio</a>
-                <a href="community.html" class="cta-primary">Community</a>
+        <header class="hero-section glass-effect">
+            <h1>Welkom bij Pjotters-AI</h1>
+            <p>Ontdek de kracht van AI met onze gratis tools en experimenten</p>
+        </header>
+
+        <section class="features-grid">
+            <div class="feature-card glass-effect" onclick="window.location.href='chat.html'">
+                <span class="material-icons">chat</span>
+                <h3>AI Chat Assistant</h3>
+                <p>Chat met onze AI voor hulp en antwoorden</p>
+                <button class="cta-primary">Start Chat</button>
             </div>
-        </div>
-        <div class="feature-card">
-            <h2>Tutorial Center</h2>
-            <p>Leer hoe je het beste uit onze AI tools haalt</p>
-            <a href="tutorial.html" class="cta-primary">Start Tutorial</a>
-        </div>
+
+            <div class="feature-card glass-effect" onclick="window.location.href='image-recognition.html'">
+                <span class="material-icons">image_search</span>
+                <h3>Beeldherkenning</h3>
+                <p>Analyseer afbeeldingen met AI</p>
+                <button class="cta-primary">Analyseer</button>
+            </div>
+
+            <div class="feature-card glass-effect" onclick="window.location.href='live-detection.html'">
+                <span class="material-icons">videocam</span>
+                <h3>Live Detectie</h3>
+                <p>Real-time object herkenning</p>
+                <button class="cta-primary">Start Live</button>
+            </div>
+
+            <div class="feature-card glass-effect" onclick="window.location.href='text-to-3d.html'">
+                <span class="material-icons">3d_rotation</span>
+                <h3>3D Generator</h3>
+                <p>Maak 3D modellen van tekst</p>
+                <button class="cta-primary">Genereer 3D</button>
+            </div>
+
+            <div class="feature-card glass-effect" onclick="window.location.href='experiment-lab.html'">
+                <span class="material-icons">science</span>
+                <h3>AI Experiment Lab</h3>
+                <p>Test verschillende AI modellen</p>
+                <button class="cta-primary">Experimenteer</button>
+            </div>
+
+            <div class="feature-card glass-effect" onclick="window.location.href='gallery.html'">
+                <span class="material-icons">collections</span>
+                <h3>AI Art Gallery</h3>
+                <p>Bekijk AI-gegenereerde kunst</p>
+                <button class="cta-primary">Bekijk Gallery</button>
+            </div>
+        </section>
     </main>
 
-    <script src="utils.js"></script>
-    <script src="feedback.js"></script>
-    <script>
-        // Initialiseer feedback systeem
-        const feedbackSystem = new FeedbackSystem();
-        
-        // Initialiseer analytics
-        AnalyticsManager.trackEvent('PageView', 'Homepage');
-    </script>
+    <footer class="glass-effect">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Over Pjotters-AI</h4>
+                <p>Gratis AI tools voor iedereen</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>info@pjotters.ai</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="index.js"></script>
 </body>
 </html>

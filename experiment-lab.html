@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Experiment Lab | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link rel="stylesheet" href="experiment-lab.css">
+    <link rel="icon" type="image/png" href="Logo-met.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="glass-nav">
+        <!-- Hergebruik van bestaande navigatie zoals in: -->
+        <!-- Zie index.html regels 15-29 -->
+    </nav>
+
+    <main class="experiment-container">
+        <header class="lab-header glass-effect">
+            <h1>AI Experiment Lab</h1>
+            <p>Experimenteer met verschillende AI modellen en parameters</p>
+        </header>
+
+        <section class="experiments-grid">
+            <div class="experiment-card glass-effect" data-model="text-to-speech">
+                <h3>Text-to-Speech Experiment</h3>
+                <div class="experiment-controls">
+                    <select class="model-select">
+                        <option value="whisper-1">Whisper v1</option>
+                        <option value="whisper-2">Whisper v2</option>
+                    </select>
+                    <div class="parameter-control">
+                        <label>Spreeksnelheid</label>
+                        <input type="range" min="0.5" max="2" step="0.1" value="1">
+                    </div>
+                    <div class="parameter-control">
+                        <label>Toonhoogte</label>
+                        <input type="range" min="-10" max="10" step="1" value="0">
+                    </div>
+                    <textarea placeholder="Voer tekst in om om te zetten naar spraak..."></textarea>
+                    <button class="run-experiment">Start Experiment</button>
+                </div>
+                <div class="experiment-results"></div>
+            </div>
+
+            <div class="experiment-card glass-effect" data-model="image-generation">
+                <!-- Vergelijkbare structuur voor andere experimenten -->
+            </div>
+
+            <div class="experiment-card glass-effect" data-model="code-completion">
+                <!-- Vergelijkbare structuur voor andere experimenten -->
+            </div>
+        </section>
+
+        <section class="experiment-metrics glass-effect">
+            <h2>Experiment Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Verwerkingstijd</h4>
+                    <div class="metric-value" id="processingTime">0ms</div>
+                </div>
+                <!-- Meer metrics -->
+            </div>
+        </section>
+    </main>
+
+    <script src="experiment-lab.js"></script>
+</body>
+</html> 
