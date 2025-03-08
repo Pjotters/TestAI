@@ -1,4 +1,4 @@
-const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e-img2img';
+const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e';
 const HF_API_KEY = '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'; // Vul hier je Hugging Face API key in
 
 const MODEL_MAPPINGS = {
@@ -58,11 +58,10 @@ class Text3DGenerator {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    inputs: {
-                        prompt: prompt,
-                        num_inference_steps: 50,
-                        guidance_scale: 7.5,
-                        negative_prompt: "low quality, bad geometry, distorted"
+                    inputs: prompt,
+                    parameters: {
+                        num_inference_steps: 64,
+                        guidance_scale: 15.0
                     }
                 })
             });
