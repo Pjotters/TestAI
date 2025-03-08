@@ -131,4 +131,51 @@ model-viewer {
     model-viewer {
         height: 400px;
     }
+}
+
+/* Status message styling */
+.status-message {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.error-message {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    color: #ff4444;
+}
+
+.success-message {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    color: #44ff44;
+}
+
+.info-message {
+    background: rgba(0, 247, 255, 0.1);
+    border: 1px solid rgba(0, 247, 255, 0.2);
+    color: #00f7ff;
+}
+
+.loading-message {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Loading animatie */
+@keyframes spin-gradient {
+    0% {
+        transform: rotate(0deg);
+        border-top-color: var(--primary);
+        border-left-color: var(--secondary);
+    }
+    100% {
+        transform: rotate(360deg);
+        border-top-color: var(--secondary);
+        border-left-color: var(--primary);
+    }
 } 

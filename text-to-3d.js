@@ -1,5 +1,5 @@
 const HF_API_KEY = config.API_KEY;
-const API_ENDPOINT = 'https://api-inference.huggingface.co/models/shap-e/shap-e';
+const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e';
 
 const MODEL_MAPPINGS = {
     'bril': 'https://modelviewer.dev/shared-assets/models/glasses.glb',
@@ -15,12 +15,26 @@ class Text3DGenerator {
         this.modelPrompt = document.getElementById('modelPrompt');
         this.modelViewer = document.getElementById('modelViewer');
         this.status = document.getElementById('status');
+        this.loadingSpinner = null;
         
         this.init();
     }
 
     init() {
         this.generateBtn.addEventListener('click', () => this.generate3DModel());
+        this.createLoadingSpinner();
+    }
+
+    createLoadingSpinner() {
+        this.loadingSpinner = document.createElement('div');
+        this.loadingSpinner.className = 'loading-spinner';
+        this.loadingSpinner.style.display = 'none';
+        this.modelViewer.appendChild(this.loadingSpinner);
+    }
+
+    showLoading(show) {
+        this.loadingSpinner.style.display = show ? 'block' : 'none';
+        this.generateBtn.disabled = show;
     }
 
     async generate3DModel() {
@@ -87,27 +101,78 @@ class Text3DGenerator {
 
     async loadPredefinedModel(modelUrl) {
         try {
-            this.displayModel(modelUrl);
-            this.showStatus('3D model succesvol geladen!', 'success');
+            this.showLoading(true);
+            await this.displayModel(modelUrl);
+            this.showStatus('Voorgedefinieerd 3D model geladen!', 'success');
         } catch (error) {
-            this.showStatus('Er ging iets mis bij het laden', 'error');
+            this.showStatus('Fout bij laden van voorgedefinieerd model', 'error');
+            console.error(error);
+        } finally {
+            this.showLoading(false);
         }
     }
 
     displayModel(modelUrl) {
-        const modelViewer = document.createElement('model-viewer');
-        modelViewer.src = modelUrl;
-        modelViewer.setAttribute('camera-controls', '');
-        modelViewer.setAttribute('auto-rotate', '');
-        modelViewer.setAttribute('ar', '');
+        const viewer = document.createElement('model-viewer');
+        viewer.src = modelUrl;
+        viewer.setAttribute('camera-controls', '');
+        viewer.setAttribute('auto-rotate', '');
+        viewer.setAttribute('ar', '');
+        viewer.setAttribute('shadow-intensity', '1');
+        viewer.style.width = '100%';
+        viewer.style.height = '500px';
+
+        // Controls toevoegen
+        const controls = this.createModelControls(viewer);
         
         this.modelViewer.innerHTML = '';
-        this.modelViewer.appendChild(modelViewer);
+        this.modelViewer.appendChild(viewer);
+        this.modelViewer.appendChild(controls);
+    }
+
+    createModelControls(viewer) {
+        const controls = document.createElement('div');
+        controls.className = 'model-controls';
+        
+        // Fullscreen knop
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.innerHTML = '<span class="material-icons">fullscreen</span>';
+        fullscreenBtn.onclick = () => this.toggleFullscreen(viewer);
+        
+        // Reset view knop
+        const resetBtn = document.createElement('button');
+        resetBtn.innerHTML = '<span class="material-icons">restart_alt</span>';
+        resetBtn.onclick = () => this.resetView(viewer);
+        
+        controls.appendChild(fullscreenBtn);
+        controls.appendChild(resetBtn);
+        
+        return controls;
     }
 
     showStatus(message, type = 'info') {
+        const statusClasses = {
+            error: 'error-message',
+            success: 'success-message',
+            info: 'info-message',
+            loading: 'loading-message'
+        };
+        
+        this.status.className = `status-message ${statusClasses[type] || 'info-message'}`;
         this.status.textContent = message;
-        this.status.className = `status-message ${type}`;
+    }
+
+    toggleFullscreen(viewer) {
+        if (!document.fullscreenElement) {
+            viewer.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    resetView(viewer) {
+        viewer.cameraOrbit = "45deg 55deg 2.5m";
+        viewer.fieldOfView = "30deg";
     }
 }
 
