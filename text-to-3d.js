@@ -11,21 +11,30 @@ const MODEL_MAPPINGS = {
 
 class Text3DGenerator {
     constructor() {
-        this.loadingManager = new LoadingStateManager('modelViewer');
-        this.setupEventListeners();
+        this.generateBtn = document.getElementById('generateBtn');
+        this.modelPrompt = document.getElementById('modelPrompt');
+        this.modelViewer = document.getElementById('modelViewer');
+        this.status = document.getElementById('status');
+        
+        this.init();
     }
 
-    setupEventListeners() {
-        document.getElementById('generateBtn')?.addEventListener('click', () => {
-            const prompt = document.getElementById('prompt').value;
-            this.generate3DModel(prompt);
-        });
+    init() {
+        this.generateBtn.addEventListener('click', () => this.generate3DModel());
     }
 
-    async generate3DModel(prompt) {
+    async generate3DModel() {
+        const prompt = this.modelPrompt.value.trim();
+        
+        if (!prompt) {
+            this.showStatus('Voer eerst een beschrijving in', 'error');
+            return;
+        }
+
         try {
-            this.loadingManager.startLoading('3D model wordt gegenereerd...', true);
-            
+            this.showStatus('Bezig met genereren...', 'loading');
+            this.generateBtn.disabled = true;
+
             // Eerst checken of we een voorgedefinieerd model hebben
             const mappedModel = MODEL_MAPPINGS[prompt.toLowerCase()];
             if (mappedModel) {
@@ -33,7 +42,7 @@ class Text3DGenerator {
                 return;
             }
 
-            // Anders genereren we een nieuw model
+            // Anders genereren we een nieuw model via Hugging Face
             const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 headers: {
@@ -57,7 +66,7 @@ class Text3DGenerator {
             const modelUrl = URL.createObjectURL(modelData);
             
             this.displayModel(modelUrl);
-            this.loadingManager.stopLoading(true);
+            this.showStatus('3D model succesvol gegenereerd!', 'success');
             
             // Trigger feedback event
             document.dispatchEvent(new CustomEvent('modelGenerated'));
@@ -66,46 +75,46 @@ class Text3DGenerator {
             AnalyticsManager.trackEvent('3D Generation', 'Success', prompt);
 
         } catch (error) {
+            this.showStatus('Er ging iets mis bij het genereren', 'error');
             console.error('Generatie error:', error);
-            this.loadingManager.showError(error);
             
             // Track error
             AnalyticsManager.trackEvent('3D Generation', 'Error', error.message);
+        } finally {
+            this.generateBtn.disabled = false;
         }
     }
 
     async loadPredefinedModel(modelUrl) {
         try {
             this.displayModel(modelUrl);
-            this.loadingManager.stopLoading(true);
+            this.showStatus('3D model succesvol geladen!', 'success');
         } catch (error) {
-            this.loadingManager.showError(error);
+            this.showStatus('Er ging iets mis bij het laden', 'error');
         }
     }
 
     displayModel(modelUrl) {
-        const modelViewer = document.getElementById('modelViewer');
-        modelViewer.innerHTML = `
-            <model-viewer
-                src="${modelUrl}"
-                camera-controls
-                auto-rotate
-                ar
-                shadow-intensity="1"
-                exposure="1"
-                style="width: 100%; height: 500px;"
-            ></model-viewer>
-            <div class="model-controls">
-                <button onclick="downloadModel('${modelUrl}')" class="cta-secondary">
-                    <span class="material-icons">download</span> Download
-                </button>
-                <button onclick="shareModel('${modelUrl}')" class="cta-secondary">
-                    <span class="material-icons">share</span> Deel
-                </button>
-            </div>
-        `;
+        const modelViewer = document.createElement('model-viewer');
+        modelViewer.src = modelUrl;
+        modelViewer.setAttribute('camera-controls', '');
+        modelViewer.setAttribute('auto-rotate', '');
+        modelViewer.setAttribute('ar', '');
+        
+        this.modelViewer.innerHTML = '';
+        this.modelViewer.appendChild(modelViewer);
+    }
+
+    showStatus(message, type = 'info') {
+        this.status.textContent = message;
+        this.status.className = `status-message ${type}`;
     }
 }
+
+// Initialiseer de generator wanneer de pagina geladen is
+document.addEventListener('DOMContentLoaded', () => {
+    new Text3DGenerator();
+});
 
 // Verbeterde download functie voor verschillende formaten
 async function downloadModel(url, format) {
@@ -204,13 +213,4 @@ function resetView(viewer) {
 // Toggle auto-rotate
 function toggleAutoRotate(viewer) {
     viewer.autoRotate = !viewer.autoRotate;
-}
-
-document.getElementById('generateBtn').addEventListener('click', () => {
-    const prompt = document.getElementById('modelPrompt').value;
-    if (!prompt) {
-        alert('Voer eerst een beschrijving in!');
-        return;
-    }
-    generate3DModel(prompt);
-}); 
+} 
