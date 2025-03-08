@@ -476,4 +476,298 @@ textarea:focus, input[type="text"]:focus {
   0% { box-shadow: 0 0 0 0 rgba(112, 0, 255, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(112, 0, 255, 0); }
   100% { box-shadow: 0 0 0 0 rgba(112, 0, 255, 0); }
+}
+
+model-viewer {
+    width: 100%;
+    height: 400px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.update-bar {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Generation preview styling */
+.generation-preview {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 247, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Verbeterde model-viewer styling */
+model-viewer {
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.4));
+    border-radius: 12px;
+    margin: 2rem 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Download knoppen */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.controls button {
+    min-width: 150px;
+    padding: 0.8rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 247, 255, 0.2);
+}
+
+/* Progress bar styling */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.update-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Status message styling */
+.status-message {
+    color: var(--light);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 3D Model Generator specifieke styling */
+.tool-section.text-to-3d {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.generation-preview {
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    margin: 2rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* Verbeterde loading spinner */
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(0, 247, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    border-left-color: var(--secondary);
+    margin: 0 auto 1.5rem;
+    animation: spin-gradient 1.5s linear infinite;
+}
+
+@keyframes spin-gradient {
+    to { 
+        transform: rotate(360deg);
+        border-top-color: var(--secondary);
+        border-left-color: var(--primary);
+    }
+}
+
+/* Verbeterde knoppen */
+.controls button {
+    min-width: 180px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.controls button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
+
+/* Verbeterde status berichten */
+.status-message {
+    background: linear-gradient(135deg, rgba(0,247,255,0.1), rgba(112,0,255,0.1));
+    padding: 1.2rem;
+    border-radius: 12px;
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.feature-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 247, 255, 0.15);
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.feature-card:hover::before {
+    transform: translateX(100%);
+}
+
+/* Model viewer interactieve styling */
+.interactive-viewer {
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: grab;
+}
+
+.interactive-viewer:hover {
+    box-shadow: 0 0 30px rgba(0, 247, 255, 0.2);
+}
+
+.interactive-viewer:active {
+    cursor: grabbing;
+}
+
+.fullscreen-btn, .model-controls button {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.fullscreen-btn {
+    top: 10px;
+    right: 10px;
+}
+
+.fullscreen-btn:hover, .model-controls button:hover {
+    background: rgba(0, 247, 255, 0.5);
+    transform: scale(1.1);
+}
+
+.model-controls {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Loading animatie verbetering */
+.generation-preview {
+    position: relative;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.loading-spinner {
+    width: 80px;
+    height: 80px;
+    border: 4px solid rgba(0, 247, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    border-left-color: var(--secondary);
+    animation: spin-gradient 1.5s linear infinite;
+}
+
+.loading-spinner::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,247,255,0.1) 0%, transparent 70%);
+    animation: pulse 2s infinite;
 } 
