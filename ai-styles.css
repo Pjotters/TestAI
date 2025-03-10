@@ -19,11 +19,19 @@ body {
 /* Fix voor de bleur (blur) effect */
 .glass-effect {
   background: rgba(13, 13, 37, 0.7) !important;
-  -webkit-backdrop-filter: blur(10px);
-  -moz-backdrop-filter: blur(10px);
-  -ms-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px) !important;
+  -moz-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* Voeg deze nieuwe class toe voor de fallback */
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-effect {
+    background: rgba(13, 13, 37, 0.9) !important;
+  }
 }
 
 .glass-nav {
