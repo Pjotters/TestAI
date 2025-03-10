@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Chat | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    <div class="ai-tools">
+        <div class="tool-section voice-chat">
+            <h2>AI Voice Assistant</h2>
+            <p>Praat met de AI assistent door je microfoon te gebruiken</p>
+            
+            <div class="voice-container">
+                <div id="voiceMessages" class="chat-messages">
+                    <div class="bot-message">
+                        Hoi! Ik ben je AI voice assistent. Klik op de microfoon om te beginnen met praten.
+                    </div>
+                </div>
+                
+                <div class="voice-controls">
+                    <button id="recordBtn" class="record-button">
+                        <span class="material-icons">mic</span>
+                    </button>
+                    <div id="recordingStatus" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="voice-functions.js"></script>
+</body>
+</html> 
