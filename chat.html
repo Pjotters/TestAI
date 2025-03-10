@@ -19,11 +19,27 @@
         <div class="tool-section chat-bot">
             <h2>AI Chat Assistant</h2>
             <p>Deze chat-AI is gemaakt met Pjotters-Intelligence-v.1 en Mistral-7B</p>
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-container glass-effect">
+                <div class="chat-header">
+                    <h2>AI Assistent</h2>
+                    <p>Stel je vragen over de AI tools</p>
+                </div>
+                
+                <div id="chatMessages" class="chat-messages">
+                    <div class="bot-message">
+                        Hoi! Ik ben je AI assistent. Ik kan je helpen met:
+                        • 3D model generatie
+                        • Beeldherkenning
+                        • Live object detectie
+                        Wat wil je weten?
+                    </div>
+                </div>
+                
                 <div class="chat-input">
-                    <input type="text" id="userInput" placeholder="Stel een vraag...">
-                    <button onclick="sendMessage()" class="cta-primary">Verstuur</button>
+                    <textarea id="userInput" placeholder="Stel je vraag..."></textarea>
+                    <button id="sendBtn" class="cta-primary">
+                        <span class="material-icons">send</span>
+                    </button>
                 </div>
             </div>
         </div>

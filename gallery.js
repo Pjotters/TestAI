@@ -10,8 +10,12 @@ class GalleryManager {
         this.tagsContainer = document.querySelector('.tags');
         
         this.currentTags = new Set();
+        this.currentPage = 1;
+        this.itemsPerPage = 12;
+        this.items = [];
+        
         this.initializeEventListeners();
-        this.loadGalleryItems();
+        this.init();
     }
 
     initializeEventListeners() {
@@ -41,68 +45,61 @@ class GalleryManager {
         });
     }
 
+    async init() {
+        await this.loadGalleryItems();
+        this.setupFilters();
+        this.setupLoadMore();
+    }
+
     async loadGalleryItems() {
         try {
-            // Simuleer API call (vervang dit later met echte API)
-            const items = await this.fetchGalleryItems();
-            this.renderGalleryItems(items);
+            // Simuleer API call (vervang dit met echte backend call)
+            const response = await fetch('/api/gallery-items');
+            const data = await response.json();
+            
+            this.items = data.items;
+            this.renderItems();
         } catch (error) {
-            console.error('Fout bij laden gallery items:', error);
+            console.error('Galerij laden mislukt:', error);
         }
     }
 
-    async fetchGalleryItems() {
-        // Voorbeeld data (vervang met echte API call)
-        return [
-            {
-                id: 1,
-                type: 'image',
-                url: 'path/to/ai-art-1.jpg',
-                title: 'AI Kunstwerk 1',
-                creator: '@gebruiker1',
-                likes: 42,
-                tags: ['portret', 'abstract']
-            },
-            // Meer items...
-        ];
+    renderItems() {
+        const grid = document.querySelector('.gallery-grid');
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        
+        const itemsToShow = this.items.slice(startIndex, endIndex);
+        
+        itemsToShow.forEach(item => {
+            const itemElement = this.createGalleryItem(item);
+            grid.appendChild(itemElement);
+        });
     }
 
-    renderGalleryItems(items) {
-        this.galleryGrid.innerHTML = items.map(item => this.createGalleryItemHTML(item)).join('');
-    }
-
-    createGalleryItemHTML(item) {
-        return `
-            <div class="gallery-item" data-type="${item.type}">
-                ${this.getMediaElement(item)}
-                <div class="overlay">
-                    <h3>${item.title}</h3>
-                    <p>Door: ${item.creator}</p>
-                    <div class="item-actions">
-                        <button class="like-btn">
-                            <span class="material-icons">favorite</span>
-                            ${item.likes}
-                        </button>
-                        <button class="share-btn">
-                            <span class="material-icons">share</span>
-                        </button>
-                    </div>
+    createGalleryItem(item) {
+        const div = document.createElement('div');
+        div.className = 'gallery-item';
+        div.dataset.type = item.type;
+        
+        div.innerHTML = `
+            <div class="item-preview">
+                ${item.type === '3d' 
+                    ? `<model-viewer src="${item.url}" camera-controls auto-rotate></model-viewer>`
+                    : `<img src="${item.url}" alt="${item.title}">`
+                }
+            </div>
+            <div class="item-info">
+                <h3>${item.title}</h3>
+                <p>${item.description}</p>
+                <div class="item-stats">
+                    <span>❤️ ${item.likes}</span>
+                    <span>💬 ${item.comments}</span>
                 </div>
             </div>
         `;
-    }
-
-    getMediaElement(item) {
-        switch(item.type) {
-            case 'image':
-                return `<img src="${item.url}" alt="${item.title}">`;
-            case '3d':
-                return `<model-viewer src="${item.url}" auto-rotate camera-controls>`;
-            case 'animation':
-                return `<video src="${item.url}" loop muted autoplay>`;
-            default:
-                return `<img src="${item.url}" alt="${item.title}">`;
-        }
+        
+        return div;
     }
 
     filterGallery(filter) {
@@ -168,6 +165,14 @@ class GalleryManager {
         // Implementeer hier de server upload
         console.log('Uploading:', formData);
         return new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    setupFilters() {
+        // Implementeer filter logica
+    }
+
+    setupLoadMore() {
+        // Implementeer load more logica
     }
 }
 

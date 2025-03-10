@@ -1,0 +1,114 @@
+/* Typing animatie voor voorbeelden */
+.tutorial-typing {
+    position: relative;
+    padding: 1rem;
+    background: rgba(0, 247, 255, 0.05);
+    border-radius: 8px;
+    font-family: monospace;
+    color: var(--primary);
+}
+
+.tutorial-typing::after {
+    content: '|';
+    position: absolute;
+    right: 0;
+    animation: blink 1s infinite;
+}
+
+/* 3D Model viewer demo */
+.tutorial-model-viewer {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.viewer-hint {
+    position: absolute;
+    padding: 0.5rem;
+    background: rgba(0, 247, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: float 2s infinite ease-in-out;
+}
+
+.viewer-hint.rotate { top: 10px; left: 10px; }
+.viewer-hint.zoom { bottom: 10px; right: 10px; }
+.viewer-hint.pan { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+/* Interactieve knoppen */
+.demo-btn {
+    position: relative;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.demo-btn.pulse {
+    animation: buttonPulse 2s infinite;
+}
+
+.demo-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    animation: shine 3s infinite;
+}
+
+/* Gallery interactie */
+.tutorial-gallery {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.gallery-action {
+    padding: 0.5rem 1rem;
+    background: rgba(0, 247, 255, 0.1);
+    border-radius: 8px;
+    transform-origin: center;
+    animation: scaleIn 0.3s ease-out;
+}
+
+.gallery-action:hover {
+    animation: bounce 0.5s ease;
+}
+
+/* Animatie keyframes */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes buttonPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 247, 255, 0.4); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0, 247, 255, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 247, 255, 0); }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    50%, 100% { transform: translateX(100%); }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+} 

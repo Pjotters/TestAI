@@ -40,9 +40,25 @@
             </div>
         </header>
 
-        <section class="gallery-grid">
-            <!-- Dynamisch gegenereerde gallery items -->
-        </section>
+        <div class="gallery-section glass-effect">
+            <h2>AI Creaties Galerij</h2>
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-filter="all">Alles</button>
+                <button class="filter-btn" data-filter="3d">3D Modellen</button>
+                <button class="filter-btn" data-filter="images">AI Kunst</button>
+                <button class="filter-btn" data-filter="popular">Populair</button>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item" data-type="3d">
+                    <!-- Dynamisch gevuld via JavaScript -->
+                </div>
+            </div>
+
+            <div class="gallery-pagination">
+                <button id="loadMore" class="cta-primary">Meer Laden</button>
+            </div>
+        </div>
 
         <button class="upload-btn glass-effect">
             <span class="material-icons">add</span>
