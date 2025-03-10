@@ -44,6 +44,8 @@ class VoiceAssistant {
             this.recording = true;
             this.recordBtn.classList.add('recording');
             this.statusDiv.textContent = 'Opname bezig...';
+            
+            this.setupVolumeDetection(stream);
         } catch (error) {
             console.error('Error accessing microphone:', error);
             this.statusDiv.textContent = 'Kon geen toegang krijgen tot de microfoon';
@@ -131,9 +133,54 @@ class VoiceAssistant {
         this.messagesDiv.appendChild(messageDiv);
         this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight;
     }
+    
+    setupVolumeDetection(stream) {
+        const audioContext = new AudioContext();
+        const audioSource = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        audioSource.connect(analyser);
+        
+        const volumeBar = document.getElementById('volumeBar');
+        const volumeLevel = document.getElementById('volumeLevel');
+        
+        const checkVolume = () => {
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(dataArray);
+            
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            const volume = Math.min(100, Math.round((average / 128) * 100));
+            
+            volumeBar.style.width = `${volume}%`;
+            volumeLevel.textContent = volume;
+            
+            if (this.recording) {
+                requestAnimationFrame(checkVolume);
+            }
+        };
+        
+        checkVolume();
+    }
 }
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     new VoiceAssistant();
+});
+
+function copyCode() {
+    const code = document.querySelector('.code-container code').textContent;
+    navigator.clipboard.writeText(code);
+    
+    const copyBtn = document.querySelector('.copy-btn');
+    copyBtn.innerHTML = '<span class="material-icons">check</span>';
+    setTimeout(() => {
+        copyBtn.innerHTML = '<span class="material-icons">content_copy</span>';
+    }, 2000);
+}
+
+document.getElementById('showCodeBtn').addEventListener('click', () => {
+    const codeSnippet = document.getElementById('codeSnippet');
+    codeSnippet.style.display = codeSnippet.style.display === 'none' ? 'block' : 'none';
 }); 

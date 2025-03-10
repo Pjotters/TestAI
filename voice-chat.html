@@ -28,6 +28,37 @@
                         <span class="material-icons">mic</span>
                     </button>
                     <div id="recordingStatus" class="status-message"></div>
+                    <div class="volume-controls">
+                        <div class="volume-bar-container">
+                            <div id="volumeBar" class="volume-bar"></div>
+                        </div>
+                        <div id="volumeLevel" class="volume-level">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="developer-section">
+                <h3>Voor Developers</h3>
+                <p>Integreer deze Voice Assistant in je eigen website</p>
+                <button id="showCodeBtn" class="cta-secondary">
+                    <span class="material-icons">code</span>
+                    Toon Code
+                </button>
+                <div id="codeSnippet" class="code-container" style="display: none;">
+                    <pre><code>
+&lt;script src="https://pjotters-ai.vercel.app/ai/voice-assistant.js"&gt;&lt;/script&gt;
+
+&lt;div id="pjotters-voice-assistant"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+    new PjottersVoiceAssistant({
+        apiKey: 'YOUR_API_KEY',
+        container: 'pjotters-voice-assistant'
+    });
+&lt;/script&gt;
+                    </code></pre>
+                    <button onclick="copyCode()" class="copy-btn">
+                        <span class="material-icons">content_copy</span>
+                    </button>
                 </div>
             </div>
         </div>
