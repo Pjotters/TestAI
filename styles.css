@@ -27,7 +27,7 @@ body {
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 1000;
+    z-index: 100;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -210,4 +210,51 @@ footer {
     .features-container {
         grid-template-columns: 1fr;
     }
+}
+
+/* Fix voor de blur overlay probleem */
+.glass-effect {
+    background: rgba(13, 13, 37, 0.7) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    -moz-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+/* Zorg dat de content boven de blur komt */
+.tool-section {
+    position: relative;
+    z-index: 2;
+}
+
+.feature-card {
+    position: relative;
+    z-index: 3;
+}
+
+/* Navigatie moet bovenaan blijven */
+.glass-nav {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+}
+
+/* Content containers */
+.ai-tools {
+    position: relative;
+    z-index: 2;
+    padding-top: 80px;
+}
+
+/* Extra fix voor klikbare elementen */
+.cta-primary,
+.cta-secondary,
+button,
+input,
+textarea {
+    position: relative;
+    z-index: 5;
 } 
