@@ -69,33 +69,33 @@ class TutorialManager {
     showTutorialStep(step) {
         const steps = {
             1: {
-                element: '.feature-card',
-                title: 'AI Features',
-                text: 'Ontdek alle AI mogelijkheden die Pjotters te bieden heeft!',
+                element: '.feature-card:nth-child(1)',
+                title: 'AI Chat Assistant',
+                text: 'Begin hier met het chatten met onze AI assistent',
                 position: 'bottom'
             },
             2: {
-                element: '.chat-bot',
-                title: 'AI Chat',
-                text: 'Chat met onze AI assistent en stel al je vragen',
+                element: '.feature-card:nth-child(2)',
+                title: 'Beeldherkenning',
+                text: 'Upload afbeeldingen voor AI analyse',
                 position: 'right'
             },
             3: {
-                element: '.image-recognition',
-                title: 'Beeldherkenning',
-                text: 'Upload afbeeldingen voor AI analyse',
+                element: '.feature-card:nth-child(3)',
+                title: 'Live Detectie',
+                text: 'Gebruik je camera voor real-time object herkenning',
                 position: 'left'
             },
             4: {
-                element: '.live-detection',
-                title: 'Live Detectie',
-                text: 'Gebruik je camera voor real-time object detectie',
+                element: '.feature-card:nth-child(4)',
+                title: '3D Generator',
+                text: 'Maak 3D modellen van tekst',
                 position: 'right'
             },
             5: {
-                element: '.text-to-3d',
-                title: '3D Generator',
-                text: 'Converteer tekst naar 3D modellen',
+                element: '.feature-card:nth-child(7)',
+                title: 'Voice Chat',
+                text: 'Praat met de AI via je microfoon',
                 position: 'bottom'
             }
         };
@@ -168,26 +168,45 @@ class TutorialManager {
     }
 
     setupTooltipNavigation(tooltip) {
-        tooltip.querySelector('.prev-btn').addEventListener('click', () => {
+        const prevBtn = tooltip.querySelector('.prev-btn');
+        const nextBtn = tooltip.querySelector('.next-btn');
+
+        prevBtn?.addEventListener('click', () => {
             if (this.currentStep > 1) {
+                // Verwijder huidige highlight en tooltip
+                document.querySelector('.tutorial-highlight')?.remove();
+                tooltip.remove();
+                
+                // Ga naar vorige stap
                 this.currentStep--;
                 this.showTutorialStep(this.currentStep);
             }
         });
 
-        tooltip.querySelector('.next-btn').addEventListener('click', () => {
+        nextBtn?.addEventListener('click', () => {
             if (this.currentStep < this.totalSteps) {
+                // Verwijder huidige highlight en tooltip
+                document.querySelector('.tutorial-highlight')?.remove();
+                tooltip.remove();
+                
+                // Ga naar volgende stap
                 this.currentStep++;
                 this.showTutorialStep(this.currentStep);
             } else {
+                // Tutorial afronden
                 this.endTutorial();
             }
         });
     }
 
     endTutorial() {
+        // Verwijder alle tutorial elementen
+        document.querySelector('.tutorial-highlight')?.remove();
         document.querySelector('.tutorial-tooltip')?.remove();
-        localStorage.setItem('tutorialCompleted', 'true');
+        document.querySelector('.tutorial-overlay')?.remove();
+        
+        // Sla op dat tutorial is voltooid
+        localStorage.setItem('tutorialShown', 'true');
     }
 }
 
