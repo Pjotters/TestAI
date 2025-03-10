@@ -1,8 +1,18 @@
 class TutorialManager {
     constructor() {
+        // Eerst checken of we op de juiste pagina zijn
+        if (!document.querySelector('.tutorial-section')) {
+            console.log('Geen tutorial sectie gevonden op deze pagina');
+            return;
+        }
+        
+        // Alleen initialiseren als we op de tutorial pagina zijn
+        this.popup = document.createElement('div');
+        this.popup.className = 'tutorial-popup';
+        document.body.appendChild(this.popup);
+        
         this.currentStep = 1;
         this.totalSteps = 5;
-        this.popup = document.getElementById('tutorialPopup');
         this.overlay = document.createElement('div');
         this.overlay.className = 'tutorial-overlay';
         this.highlightElement = document.createElement('div');
@@ -12,6 +22,7 @@ class TutorialManager {
     }
 
     init() {
+        if (!this.popup) return; // Extra check
         // Toon popup alleen als gebruiker voor het eerst komt
         if (!localStorage.getItem('tutorialShown')) {
             this.showPopup();
@@ -27,11 +38,13 @@ class TutorialManager {
     }
 
     showPopup() {
+        if (!this.popup) return; // Extra check
         document.body.appendChild(this.overlay);
         this.popup.style.display = 'block';
     }
 
     hidePopup() {
+        if (!this.popup) return; // Extra check
         document.body.removeChild(this.overlay);
         this.popup.style.display = 'none';
         localStorage.setItem('tutorialShown', 'true');
@@ -200,5 +213,7 @@ class TutorialManager {
     }
 }
 
-// Initialiseer de tutorial
-const tutorial = new TutorialManager(); 
+// Alleen initialiseren als het document geladen is
+document.addEventListener('DOMContentLoaded', () => {
+    new TutorialManager();
+}); 
