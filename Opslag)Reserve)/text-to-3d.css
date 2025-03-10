@@ -1,0 +1,181 @@
+/* 3D Generator Container */
+.tool-section.text-to-3d {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+/* Prompt Container */
+.prompt-container {
+    background: rgba(13, 13, 37, 0.7);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.prompt-container textarea {
+    width: 100%;
+    min-height: 120px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--light);
+    padding: 1rem;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.prompt-container textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
+}
+
+/* Model Viewer Container */
+.model-viewer-container {
+    background: rgba(13, 13, 37, 0.7);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+model-viewer {
+    width: 100%;
+    height: 500px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+}
+
+/* Loading States */
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(0, 247, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+/* Controls en Knoppen */
+.model-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.model-controls button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.model-controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 247, 255, 0.2);
+}
+
+/* Voorbeelden Sectie */
+.examples-section {
+    margin: 3rem 0;
+    text-align: center;
+}
+
+.example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.example-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--light);
+    transition: all 0.3s ease;
+}
+
+.example-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Responsieve Aanpassingen */
+@media (max-width: 768px) {
+    .tool-section.text-to-3d {
+        padding: 1rem;
+    }
+    
+    .model-viewer-container {
+        padding: 1rem;
+    }
+    
+    model-viewer {
+        height: 400px;
+    }
+}
+
+/* Status message styling */
+.status-message {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.error-message {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    color: #ff4444;
+}
+
+.success-message {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    color: #44ff44;
+}
+
+.info-message {
+    background: rgba(0, 247, 255, 0.1);
+    border: 1px solid rgba(0, 247, 255, 0.2);
+    color: #00f7ff;
+}
+
+.loading-message {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Loading animatie */
+@keyframes spin-gradient {
+    0% {
+        transform: rotate(0deg);
+        border-top-color: var(--primary);
+        border-left-color: var(--secondary);
+    }
+    100% {
+        transform: rotate(360deg);
+        border-top-color: var(--secondary);
+        border-left-color: var(--primary);
+    }
+} 

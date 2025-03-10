@@ -1,0 +1,99 @@
+.tutorial-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(13, 13, 37, 0.95);
+    padding: 2rem;
+    border-radius: 16px;
+    text-align: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.tutorial-popup h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.tutorial-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.tutorial-buttons button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+}
+
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    backdrop-filter: blur(5px);
+}
+
+.tutorial-highlight {
+    position: absolute;
+    z-index: 1000;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    pointer-events: none;
+    animation: pulse 2s infinite;
+}
+
+.tutorial-tooltip {
+    position: absolute;
+    z-index: 1001;
+    background: rgba(13, 13, 37, 0.95);
+    padding: 1.5rem;
+    border-radius: 12px;
+    max-width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+.tutorial-tooltip.top { bottom: calc(100% + 15px); }
+.tutorial-tooltip.bottom { top: calc(100% + 15px); }
+.tutorial-tooltip.left { right: calc(100% + 15px); }
+.tutorial-tooltip.right { left: calc(100% + 15px); }
+
+.step-dots {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: var(--primary);
+    transform: scale(1.2);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75); }
+    50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85); }
+    100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+} 

@@ -1,0 +1,59 @@
+/* Gedeelde componenten styling */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.feedback-modal {
+    background: var(--dark-bg);
+    padding: 2rem;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    animation: slideIn 0.3s ease-out;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.star-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Toegankelijkheid verbeteringen */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Responsieve aanpassingen */
+@media (max-width: 768px) {
+    .feedback-modal {
+        width: 95%;
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+} 

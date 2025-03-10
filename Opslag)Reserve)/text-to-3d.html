@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tekst naar 3D | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link rel="icon" type="image/png" href="Logo-met.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
+</head>
+<body>
+    <nav class="glass-nav">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="Logo-blank.png" alt="Pjotters" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="chat.html">Chat</a></li>
+                <li><a href="image-recognition.html">Beeldherkenning</a></li>
+                <li><a href="live-detection.html">Live Detectie</a></li>
+                <li><a href="text-to-3d.html">3D Generator</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="ai-tools">
+        <div class="tool-section text-to-3d">
+            <h2>Tekst naar 3D Model Generator</h2>
+            <p>Genereer 3D modellen direct vanuit je tekstbeschrijving</p>
+            
+            <div class="prompt-container glass-effect">
+                <textarea id="modelPrompt" placeholder="Beschrijf het 3D model dat je wilt genereren... (bijvoorbeeld: 'een gele bril')"></textarea>
+                <button id="generateBtn" class="cta-primary">
+                    <span class="material-icons">3d_rotation</span>
+                    Genereer 3D Model
+                </button>
+            </div>
+
+            <div id="status" class="status-message"></div>
+            <div id="modelViewer" class="model-viewer-container glass-effect"></div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="analytics.js"></script>
+    <script src="text-to-3d.js"></script>
+</body>
+</html> 

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link rel="stylesheet" href="feedback-styles.css">
+    <link rel="stylesheet" href="index-animations.css">
+    <link rel="stylesheet" href="chat-animations.css">
+    <link rel="stylesheet" href="tutorial-animations.css">
+    <link rel="stylesheet" href="tutorial-popup.css">
+    <link rel="stylesheet" href="tutorial.css">
+    <link rel="icon" type="image/png" href="Logo-met.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Shared Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="ai-tools">
+        <div class="tool-section chat-bot">
+            <h2>AI Chat Assistant</h2>
+            <p>Deze chat-AI is gemaakt met Pjotters-Intelligence-v.1 en Mistral-7B</p>
+            <div class="chat-container glass-effect">
+                <div class="chat-header">
+                    <h2>AI Assistent</h2>
+                    <p>Stel je vragen over de AI tools</p>
+                </div>
+                
+                <div id="chatMessages" class="chat-messages">
+                    <div class="bot-message">
+                        Hoi! Ik ben je AI assistent. Ik kan je helpen met:
+                        • 3D model generatie
+                        • Beeldherkenning
+                        • Live object detectie
+                        Wat wil je weten?
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <textarea id="userInput" placeholder="Stel je vraag..."></textarea>
+                    <button id="sendBtn" class="cta-primary">
+                        <span class="material-icons">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tool-section image-recognition">
+            <h2>Afbeelding Analyse</h2>
+            <p>Powered by TensorFlow.js</p>
+            <div class="upload-container">
+                <input type="file" id="imageInput" accept="image/*">
+                <button onclick="analyzeImage()" class="cta-primary">Analyseer</button>
+                <div id="imageResults" class="results-container"></div>
+            </div>
+        </div>
+
+        <div class="tool-section image-editor">
+            <h2>AI Beeldbewerking</h2>
+            <p>Met OpenCV.js</p>
+            <div class="editor-container">
+                <input type="file" id="editorInput" accept="image/*">
+                <canvas id="imageCanvas"></canvas>
+                <div class="editor-controls">
+                    <button onclick="applyFilter('brightness')" class="cta-secondary">Helderheid</button>
+                    <button onclick="applyFilter('contrast')" class="cta-secondary">Contrast</button>
+                    <button onclick="applyFilter('blur')" class="cta-secondary">Vervaging</button>
+                    <button onclick="applyFilter('edge')" class="cta-secondary">Randen Detectie</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h4>Over Pjotters-AI</h4>
+                <p>Gratis AI tools, mogelijk gemaakt door open source technologie</p>
+            </div>
+            <div class="footer-section">
+                <h4>Credits</h4>
+                <p>TensorFlow.js</p>
+                <p>OpenCV.js</p>
+                <p>Hugging Face</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Externe libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://docs.opencv.org/master/opencv.js" async></script>
+
+    <!-- Eigen scripts -->
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="feedback.js"></script>
+    <script src="ai-functions.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="tutorial-popup.js"></script>
+    <script src="tutorial-animations.js"></script>
+    <script>
+        // Load shared navigation
+        fetch('shared-nav.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('nav-placeholder').innerHTML = data);
+
+        // Initialize feedback system
+        const feedbackSystem = new FeedbackSystem();
+    </script>
+</body>
+</html>

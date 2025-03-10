@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Art Gallery | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link rel="stylesheet" href="gallery-styles.css">
+    <link rel="icon" type="image/png" href="Logo-met.png">
+    <link rel="stylesheet" href="tutorial-animations.css">
+    <link rel="stylesheet" href="tutorial-popup.css">
+    <link rel="stylesheet" href="tutorial.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="glass-nav">
+        <!-- Hergebruik van bestaande navigatie structuur -->
+        <div class="nav-content">
+            <div class="logo">
+                <img src="Logo-blank.png" alt="Pjotters" class="logo-img">
+            </div>
+            <ul class="nav-links">
+                <li><a href="chat.html">Chat</a></li>
+                <li><a href="image-recognition.html">Beeldherkenning</a></li>
+                <li><a href="live-detection.html">Live Detectie</a></li>
+                <li><a href="text-to-3d.html">3D Generator</a></li>
+                <li><a href="gallery.html" class="active">Gallery</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="gallery-container">
+        <header class="gallery-header">
+            <h1>AI Art Gallery</h1>
+            <p>Ontdek en deel AI-gegenereerde kunstwerken</p>
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-filter="all">Alles</button>
+                <button class="filter-btn" data-filter="image">Afbeeldingen</button>
+                <button class="filter-btn" data-filter="3d">3D Models</button>
+                <button class="filter-btn" data-filter="animation">Animaties</button>
+            </div>
+        </header>
+
+        <div class="gallery-section glass-effect">
+            <h2>AI Creaties Galerij</h2>
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-filter="all">Alles</button>
+                <button class="filter-btn" data-filter="3d">3D Modellen</button>
+                <button class="filter-btn" data-filter="images">AI Kunst</button>
+                <button class="filter-btn" data-filter="popular">Populair</button>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item" data-type="3d">
+                    <!-- Dynamisch gevuld via JavaScript -->
+                </div>
+            </div>
+
+            <div class="gallery-pagination">
+                <button id="loadMore" class="cta-primary">Meer Laden</button>
+            </div>
+        </div>
+
+        <button class="upload-btn glass-effect">
+            <span class="material-icons">add</span>
+            Deel je creatie
+        </button>
+    </main>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content glass-effect">
+            <h2>Deel je AI Creatie</h2>
+            <form id="uploadForm">
+                <input type="file" accept="image/*,video/*,.glb,.gltf" required>
+                <input type="text" placeholder="Geef je werk een titel" required>
+                <textarea placeholder="Beschrijf je creatie..." required></textarea>
+                <div class="tag-input">
+                    <input type="text" placeholder="Tags (druk op enter om toe te voegen)">
+                    <div class="tags"></div>
+                </div>
+                <button type="submit" class="cta-primary">Uploaden</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="gallery.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="tutorial-popup.js"></script>
+    <script src="tutorial-animations.js"></script>
+</body>
+</html> 
