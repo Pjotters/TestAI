@@ -90,10 +90,10 @@ body {
 
 .tool-section h2 {
   background: linear-gradient(90deg, #00f7ff, #9f00ff);
+  background-clip: text;
   -webkit-background-clip: text;
   -moz-background-clip: text;
   -ms-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   color: var(--light); /* Fallback */
   font-size: 2rem;
@@ -869,10 +869,10 @@ model-viewer {
 /* Gedeelde elementen */
 h2 {
     background: linear-gradient(90deg, #00f7ff, #9f00ff);
+    background-clip: text;
     -webkit-background-clip: text;
     -moz-background-clip: text;
     -ms-background-clip: text;
-    background-clip: text;
     -webkit-text-fill-color: transparent;
     color: var(--light); /* Fallback */
     font-size: 2rem;
