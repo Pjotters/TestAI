@@ -38,23 +38,17 @@
             </div>
             <div class="developer-section">
                 <h3>Voor Developers</h3>
-                <p>Integreer deze Voice Assistant in je eigen website</p>
+                <p>Kopieer deze code om de Voice Assistant gratis aan je website toe te voegen:</p>
                 <button id="showCodeBtn" class="cta-secondary">
                     <span class="material-icons">code</span>
                     Toon Code
                 </button>
                 <div id="codeSnippet" class="code-container" style="display: none;">
                     <pre><code>
-&lt;script src="https://pjotters-ai.vercel.app/ai/voice-assistant.js"&gt;&lt;/script&gt;
-
-&lt;div id="pjotters-voice-assistant"&gt;&lt;/div&gt;
-
-&lt;script&gt;
-    new PjottersVoiceAssistant({
-        apiKey: 'YOUR_API_KEY',
-        container: 'pjotters-voice-assistant'
-    });
-&lt;/script&gt;
+&lt;!-- Voeg dit toe aan je HTML bestand --&gt;
+&lt;div class="pjotters-voice-assistant"&gt;
+    &lt;script src="https://pjotters-ai.vercel.app/ai/TestAI/voice-embed.js"&gt;&lt;/script&gt;
+&lt;/div&gt;
                     </code></pre>
                     <button onclick="copyCode()" class="copy-btn">
                         <span class="material-icons">content_copy</span>
