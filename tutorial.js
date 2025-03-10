@@ -1,51 +1,62 @@
 class TutorialManager {
     constructor() {
-        // Eerst checken of we op de juiste pagina zijn
-        if (!document.querySelector('.tutorial-section')) {
-            console.log('Geen tutorial sectie gevonden op deze pagina');
-            return;
-        }
-        
-        // Alleen initialiseren als we op de tutorial pagina zijn
-        this.popup = document.createElement('div');
-        this.popup.className = 'tutorial-popup';
-        document.body.appendChild(this.popup);
-        
         this.currentStep = 1;
         this.totalSteps = 5;
+        
+        // Maak de popup elementen aan
+        this.createPopupElements();
+        
+        // Wacht tot de pagina geladen is
+        document.addEventListener('DOMContentLoaded', () => {
+            this.init();
+        });
+    }
+
+    createPopupElements() {
+        // Maak popup container
+        this.popup = document.createElement('div');
+        this.popup.className = 'tutorial-popup';
+        this.popup.innerHTML = `
+            <h3>Welkom bij Pjotters-AI!</h3>
+            <p>Wil je een korte rondleiding door de features?</p>
+            <div class="tutorial-buttons">
+                <button id="startTutorial" class="cta-primary">Start Tutorial</button>
+                <button id="skipTutorial" class="cta-secondary">Overslaan</button>
+            </div>
+        `;
+        
+        // Maak overlay
         this.overlay = document.createElement('div');
         this.overlay.className = 'tutorial-overlay';
-        this.highlightElement = document.createElement('div');
-        this.highlightElement.className = 'tutorial-highlight';
         
-        this.init();
+        // Voeg toe aan body
+        document.body.appendChild(this.overlay);
+        document.body.appendChild(this.popup);
     }
 
     init() {
-        if (!this.popup) return; // Extra check
         // Toon popup alleen als gebruiker voor het eerst komt
         if (!localStorage.getItem('tutorialShown')) {
             this.showPopup();
         }
 
-        document.getElementById('startTutorial').addEventListener('click', () => {
+        // Event listeners voor knoppen
+        document.getElementById('startTutorial')?.addEventListener('click', () => {
             this.startTutorial();
         });
 
-        document.getElementById('skipTutorial').addEventListener('click', () => {
+        document.getElementById('skipTutorial')?.addEventListener('click', () => {
             this.hidePopup();
         });
     }
 
     showPopup() {
-        if (!this.popup) return; // Extra check
-        document.body.appendChild(this.overlay);
+        this.overlay.style.display = 'block';
         this.popup.style.display = 'block';
     }
 
     hidePopup() {
-        if (!this.popup) return; // Extra check
-        document.body.removeChild(this.overlay);
+        this.overlay.style.display = 'none';
         this.popup.style.display = 'none';
         localStorage.setItem('tutorialShown', 'true');
     }
@@ -53,93 +64,74 @@ class TutorialManager {
     startTutorial() {
         this.hidePopup();
         this.showTutorialStep(1);
-        document.body.appendChild(this.highlightElement);
     }
 
     showTutorialStep(step) {
         const steps = {
             1: {
-                element: '.prompt-container',
-                title: 'Beschrijf je 3D model',
-                text: 'Type hier wat voor 3D model je wilt genereren',
-                position: 'bottom',
-                example: {
-                    type: 'typing',
-                    text: 'een rode sportauto met vleugels'
-                }
+                element: '.chat-container',
+                title: 'Chat Assistent',
+                text: 'Hier kun je met de AI chatten. Stel vragen en krijg direct antwoord!',
+                position: 'bottom'
             },
             2: {
-                element: '#generateBtn',
-                title: 'Genereer je model',
-                text: 'Klik hier om je beschrijving om te zetten naar een 3D model',
-                position: 'right',
-                example: {
-                    type: 'button',
-                    animation: 'pulse'
-                }
+                element: '.voice-controls',
+                title: 'Voice Control',
+                text: 'Klik op de microfoon om te praten met de AI',
+                position: 'top'
             },
             3: {
-                element: '#modelViewer',
-                title: 'Bekijk je model',
-                text: 'Hier verschijnt je gegenereerde 3D model',
-                position: 'top',
-                example: {
-                    type: 'viewer',
-                    actions: ['rotate', 'zoom', 'pan']
-                }
+                element: '.volume-bar',
+                title: 'Volume Indicator',
+                text: 'Hier zie je je spraakvolume tijdens het opnemen',
+                position: 'right'
             },
             4: {
-                element: '.model-controls',
-                title: 'Pas je model aan',
-                text: 'Gebruik deze knoppen om je model te draaien en in te zoomen',
-                position: 'left',
-                example: {
-                    type: 'controls',
-                    highlight: true
-                }
+                element: '.developer-section',
+                title: 'Voor Developers',
+                text: 'Voeg deze AI toe aan je eigen website!',
+                position: 'top'
             },
             5: {
-                element: '.gallery-section',
-                title: 'Deel je creatie',
-                text: 'Deel je mooiste modellen in de galerij!',
-                position: 'bottom',
-                example: {
-                    type: 'gallery',
-                    items: ['like', 'comment', 'share']
-                }
+                element: '.chat-messages',
+                title: 'Chat Geschiedenis',
+                text: 'Hier verschijnen alle berichten',
+                position: 'bottom'
             }
         };
 
-        const currentStepInfo = steps[step];
-        const element = document.querySelector(currentStepInfo.element);
+        const stepInfo = steps[step];
+        const element = document.querySelector(stepInfo.element);
         
-        if (!element) return;
+        if (element) {
+            this.highlightElement(element, stepInfo);
+        }
+    }
 
-        // Highlight het element
+    highlightElement(element, stepInfo) {
         const rect = element.getBoundingClientRect();
+        this.highlightElement = document.createElement('div');
+        this.highlightElement.className = 'tutorial-highlight';
         this.highlightElement.style.top = `${rect.top + window.scrollY}px`;
         this.highlightElement.style.left = `${rect.left}px`;
         this.highlightElement.style.width = `${rect.width}px`;
         this.highlightElement.style.height = `${rect.height}px`;
 
-        // Toon tooltip
-        this.showTooltip(currentStepInfo, rect);
+        this.showTooltip(stepInfo, rect);
 
-        // Scroll naar element
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Voeg interactief voorbeeld toe
-        if (currentStepInfo.example) {
+        if (stepInfo.example) {
             const exampleContainer = document.createElement('div');
             exampleContainer.className = 'tutorial-example';
             
-            switch(currentStepInfo.example.type) {
+            switch(stepInfo.example.type) {
                 case 'typing':
-                    this.examples.createTypingAnimation(exampleContainer, currentStepInfo.example.text);
+                    this.examples.createTypingAnimation(exampleContainer, stepInfo.example.text);
                     break;
                 case 'button':
                     exampleContainer.innerHTML = `
-                        <button class="demo-btn ${currentStepInfo.example.animation}">
+                        <button class="demo-btn ${stepInfo.example.animation}">
                             <span class="material-icons">3d_rotation</span>
                             Genereer 3D Model
                         </button>
@@ -175,10 +167,8 @@ class TutorialManager {
             </div>
         `;
 
-        // Positie tooltip
         this.positionTooltip(tooltip, stepInfo.position, elementRect);
         
-        // Event listeners voor navigatie
         this.setupTooltipNavigation(tooltip);
     }
 
@@ -213,7 +203,5 @@ class TutorialManager {
     }
 }
 
-// Alleen initialiseren als het document geladen is
-document.addEventListener('DOMContentLoaded', () => {
-    new TutorialManager();
-}); 
+// Initialiseer de tutorial
+new TutorialManager(); 
