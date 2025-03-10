@@ -69,113 +69,102 @@ class TutorialManager {
     showTutorialStep(step) {
         const steps = {
             1: {
-                element: '.chat-container',
-                title: 'Chat Assistent',
-                text: 'Hier kun je met de AI chatten. Stel vragen en krijg direct antwoord!',
+                element: '.feature-card',
+                title: 'AI Features',
+                text: 'Ontdek alle AI mogelijkheden die Pjotters te bieden heeft!',
                 position: 'bottom'
             },
             2: {
-                element: '.voice-controls',
-                title: 'Voice Control',
-                text: 'Klik op de microfoon om te praten met de AI',
-                position: 'top'
-            },
-            3: {
-                element: '.volume-bar',
-                title: 'Volume Indicator',
-                text: 'Hier zie je je spraakvolume tijdens het opnemen',
+                element: '.chat-bot',
+                title: 'AI Chat',
+                text: 'Chat met onze AI assistent en stel al je vragen',
                 position: 'right'
             },
+            3: {
+                element: '.image-recognition',
+                title: 'Beeldherkenning',
+                text: 'Upload afbeeldingen voor AI analyse',
+                position: 'left'
+            },
             4: {
-                element: '.developer-section',
-                title: 'Voor Developers',
-                text: 'Voeg deze AI toe aan je eigen website!',
-                position: 'top'
+                element: '.live-detection',
+                title: 'Live Detectie',
+                text: 'Gebruik je camera voor real-time object detectie',
+                position: 'right'
             },
             5: {
-                element: '.chat-messages',
-                title: 'Chat Geschiedenis',
-                text: 'Hier verschijnen alle berichten',
+                element: '.text-to-3d',
+                title: '3D Generator',
+                text: 'Converteer tekst naar 3D modellen',
                 position: 'bottom'
             }
         };
 
         const stepInfo = steps[step];
+        if (!stepInfo) return;
+
+        // Verwijder bestaande tooltip
+        document.querySelector('.tutorial-tooltip')?.remove();
+
         const element = document.querySelector(stepInfo.element);
-        
-        if (element) {
-            this.highlightElement(element, stepInfo);
-        }
-    }
+        if (!element) return;
 
-    highlightElement(element, stepInfo) {
-        const rect = element.getBoundingClientRect();
-        this.highlightElement = document.createElement('div');
-        this.highlightElement.className = 'tutorial-highlight';
-        this.highlightElement.style.top = `${rect.top + window.scrollY}px`;
-        this.highlightElement.style.left = `${rect.left}px`;
-        this.highlightElement.style.width = `${rect.width}px`;
-        this.highlightElement.style.height = `${rect.height}px`;
-
-        this.showTooltip(stepInfo, rect);
-
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        if (stepInfo.example) {
-            const exampleContainer = document.createElement('div');
-            exampleContainer.className = 'tutorial-example';
-            
-            switch(stepInfo.example.type) {
-                case 'typing':
-                    this.examples.createTypingAnimation(exampleContainer, stepInfo.example.text);
-                    break;
-                case 'button':
-                    exampleContainer.innerHTML = `
-                        <button class="demo-btn ${stepInfo.example.animation}">
-                            <span class="material-icons">3d_rotation</span>
-                            Genereer 3D Model
-                        </button>
-                    `;
-                    break;
-                case 'viewer':
-                    this.examples.createModelViewerAnimation(exampleContainer);
-                    break;
-                case 'controls':
-                    this.examples.createControlsDemo(exampleContainer);
-                    break;
-                case 'gallery':
-                    this.examples.createGalleryInteraction(exampleContainer);
-                    break;
-            }
-            
-            this.tooltip.appendChild(exampleContainer);
-        }
-    }
-
-    showTooltip(stepInfo, elementRect) {
+        // Maak nieuwe tooltip
         const tooltip = document.createElement('div');
         tooltip.className = `tutorial-tooltip ${stepInfo.position}`;
         tooltip.innerHTML = `
-            <h3>${stepInfo.title}</h3>
+            <h4>${stepInfo.title}</h4>
             <p>${stepInfo.text}</p>
-            <div class="tutorial-nav">
-                <button class="prev-btn" ${this.currentStep === 1 ? 'disabled' : ''}>Vorige</button>
-                <div class="step-dots">
-                    ${this.createStepDots()}
-                </div>
-                <button class="next-btn">${this.currentStep === this.totalSteps ? 'Afronden' : 'Volgende'}</button>
+            <div class="step-dots">
+                ${Array(this.totalSteps).fill(0).map((_, i) => 
+                    `<div class="dot ${i + 1 === step ? 'active' : ''}"></div>`
+                ).join('')}
+            </div>
+            <div class="tutorial-buttons">
+                <button class="prev-btn" ${step === 1 ? 'disabled' : ''}>Vorige</button>
+                <button class="next-btn">${step === this.totalSteps ? 'Afronden' : 'Volgende'}</button>
             </div>
         `;
 
-        this.positionTooltip(tooltip, stepInfo.position, elementRect);
-        
-        this.setupTooltipNavigation(tooltip);
-    }
+        // Highlight element
+        const highlight = document.createElement('div');
+        highlight.className = 'tutorial-highlight';
+        const rect = element.getBoundingClientRect();
+        highlight.style.top = `${rect.top - 5}px`;
+        highlight.style.left = `${rect.left - 5}px`;
+        highlight.style.width = `${rect.width + 10}px`;
+        highlight.style.height = `${rect.height + 10}px`;
 
-    createStepDots() {
-        return Array.from({length: this.totalSteps}, (_, i) => 
-            `<span class="dot ${i + 1 === this.currentStep ? 'active' : ''}"></span>`
-        ).join('');
+        // Voeg toe aan DOM
+        document.body.appendChild(highlight);
+        document.body.appendChild(tooltip);
+
+        // Positioneer tooltip
+        const tooltipRect = tooltip.getBoundingClientRect();
+        let top, left;
+        switch(stepInfo.position) {
+            case 'top':
+                top = rect.top - tooltipRect.height - 20;
+                left = rect.left + (rect.width - tooltipRect.width) / 2;
+                break;
+            case 'bottom':
+                top = rect.bottom + 20;
+                left = rect.left + (rect.width - tooltipRect.width) / 2;
+                break;
+            case 'left':
+                top = rect.top + (rect.height - tooltipRect.height) / 2;
+                left = rect.left - tooltipRect.width - 20;
+                break;
+            case 'right':
+                top = rect.top + (rect.height - tooltipRect.height) / 2;
+                left = rect.right + 20;
+                break;
+        }
+        tooltip.style.top = `${top}px`;
+        tooltip.style.left = `${left}px`;
+
+        // Event listeners voor navigatie
+        this.setupTooltipNavigation(tooltip);
     }
 
     setupTooltipNavigation(tooltip) {
@@ -197,7 +186,6 @@ class TutorialManager {
     }
 
     endTutorial() {
-        this.highlightElement.remove();
         document.querySelector('.tutorial-tooltip')?.remove();
         localStorage.setItem('tutorialCompleted', 'true');
     }

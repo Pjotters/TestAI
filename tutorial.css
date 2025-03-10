@@ -11,6 +11,8 @@
     text-align: center;
     display: none;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
 }
 
 .tutorial-popup h3 {
@@ -22,14 +24,26 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .tutorial-buttons button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.tutorial-buttons button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tutorial-buttons button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .tutorial-overlay {
@@ -39,28 +53,30 @@
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 998;
+    z-index: 997;
     display: none;
 }
 
 .tutorial-highlight {
-    position: absolute;
-    border: 2px solid #00aeff;
+    position: fixed;
+    border: 2px solid var(--primary);
     border-radius: 8px;
+    z-index: 998;
     pointer-events: none;
-    z-index: 997;
     animation: pulse 2s infinite;
+    background: rgba(0, 174, 255, 0.1);
 }
 
 .tutorial-tooltip {
-    position: absolute;
-    z-index: 1001;
+    position: fixed;
     background: rgba(13, 13, 37, 0.95);
     padding: 1.5rem;
     border-radius: 12px;
+    color: white;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     max-width: 300px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tutorial-tooltip.top { bottom: calc(100% + 15px); }
@@ -70,7 +86,7 @@
 
 .step-dots {
     display: flex;
-    gap: 5px;
+    gap: 6px;
     justify-content: center;
     margin: 1rem 0;
 }
@@ -79,8 +95,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .dot.active {
