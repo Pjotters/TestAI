@@ -1,0 +1,213 @@
+:root {
+    --primary-color: #0071e3;
+    --secondary-color: #00c6fb;
+    --gradient-start: #4158D0;
+    --gradient-middle: #C850C0;
+    --gradient-end: #FFCC70;
+    --card-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    --border-radius: 16px;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f8f9fa;
+    color: #2d3436;
+}
+
+.hero-section {
+    background: linear-gradient(-45deg, var(--gradient-start), var(--gradient-middle), var(--gradient-end));
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    padding: 100px 20px;
+    text-align: center;
+    color: white;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.hero-highlight {
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: rgba(255,255,255,0.15);
+    padding: 15px 25px;
+    border-radius: 30px;
+    display: inline-block;
+}
+
+.pricing-section {
+    margin-top: -60px;
+    padding: 0 20px 80px;
+    position: relative;
+}
+
+.pricing-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.pricing-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 40px;
+    position: relative;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.featured {
+    border: 2px solid var(--primary-color);
+    transform: scale(1.05);
+}
+
+.featured-badge {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(0,113,227,0.3);
+}
+
+.card-header h3 {
+    font-size: 2rem;
+    margin: 0 0 20px;
+    color: #2d3436;
+}
+
+.price {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    line-height: 1;
+}
+
+.currency {
+    font-size: 1.5rem;
+    vertical-align: super;
+}
+
+.period {
+    font-size: 1rem;
+    color: #636e72;
+    font-weight: normal;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px;
+}
+
+.features-list li {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    color: #2d3436;
+}
+
+.check-icon {
+    color: #00b894;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.cta-button {
+    display: inline-block;
+    width: 100%;
+    padding: 15px 0;
+    border-radius: 30px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cta-button.basic {
+    background: #f1f2f6;
+    color: #2d3436;
+}
+
+.cta-button.pro {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,113,227,0.3);
+}
+
+.cta-button.premium {
+    background: linear-gradient(45deg, #6c5ce7, #a363d9);
+    color: white;
+    box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 1024px) {
+    .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .pricing-card.featured {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-card.featured {
+        grid-column: auto;
+    }
+    
+    .pricing-card {
+        padding: 30px;
+    }
+} 
