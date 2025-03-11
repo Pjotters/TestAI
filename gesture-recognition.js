@@ -80,33 +80,30 @@ class GestureRecognition {
     }
 
     countFingers(hand) {
-        // Detecteer eerst speciale gebaren
-        const specialGesture = this.detectSpecialGesture(hand);
-        if (specialGesture) {
-            return specialGesture;
-        }
-
         const fingerTips = [4, 8, 12, 16, 20];
         const fingerMids = [3, 7, 11, 15, 19];
         const fingerBases = [2, 6, 10, 14, 18];
         const palmBase = hand.landmarks[0];
         let count = 0;
+
+        // Detecteer eerst speciale gebaren
+        const specialGesture = this.detectSpecialGesture(hand);
+        if (specialGesture) {
+            return specialGesture;
+        }
         
         fingerTips.forEach((tipId, index) => {
             const tip = hand.landmarks[tipId];
             const mid = hand.landmarks[fingerMids[index]];
             const base = hand.landmarks[fingerBases[index]];
             
-            // Verbeterde vingerdetectie
+            // Verbeterde vingerdetectie voor alle vingers
             if (index === 0) { // Duim
-                // Duim wordt apart gecontroleerd in detectSpecialGesture
-                return;
+                const isExtended = Math.abs(tip[0] - base[0]) > 30;
+                if (isExtended) count++;
             } else {
-                // Voor andere vingers
-                const fingerIsExtended = tip[1] < base[1] - 30;
-                if (fingerIsExtended) {
-                    count++;
-                }
+                const fingerIsExtended = tip[1] < base[1] - 20;
+                if (fingerIsExtended) count++;
             }
         });
         
@@ -152,28 +149,21 @@ class GestureRecognition {
     }
 
     isThumbLeft(thumb, palm) {
-        return thumb.tip[0] < palm[0] - 30 && 
-               Math.abs(thumb.tip[1] - palm[1]) < 50;
-    }
-
-    isThumbRight(thumb, palm) {
+        // Gespiegelde logica
         return thumb.tip[0] > palm[0] + 30 && 
                Math.abs(thumb.tip[1] - palm[1]) < 50;
     }
 
+    isThumbRight(thumb, palm) {
+        // Gespiegelde logica
+        return thumb.tip[0] < palm[0] - 30 && 
+               Math.abs(thumb.tip[1] - palm[1]) < 50;
+    }
+
     drawHand(hand, ctx) {
-        // Haal de kleur van de Start/Stop knop
         const buttonColor = getComputedStyle(this.toggleBtn).backgroundColor;
         
-        // Teken de handpunten
-        hand.landmarks.forEach(point => {
-            ctx.beginPath();
-            ctx.arc(point[0], point[1], 5, 0, 3 * Math.PI);
-            ctx.fillStyle = buttonColor;
-            ctx.fill();
-        });
-
-        // Teken de verbindingen
+        // Teken de verbindingen eerst (onder de punten)
         const fingers = [[0,1,2,3,4], [0,5,6,7,8], [0,9,10,11,12], [0,13,14,15,16], [0,17,18,19,20]];
         fingers.forEach(finger => {
             ctx.beginPath();
@@ -182,49 +172,50 @@ class GestureRecognition {
                 ctx.lineTo(hand.landmarks[finger[i]][0], hand.landmarks[finger[i]][1]);
             }
             ctx.strokeStyle = buttonColor;
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.stroke();
+        });
+        
+        // Teken de handpunten bovenop de lijnen
+        hand.landmarks.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point[0], point[1], 6, 0, 3 * Math.PI);
+            ctx.fillStyle = buttonColor;
+            ctx.fill();
         });
     }
 
     displayResults(handGestures, handCount) {
-        this.resultsDiv.innerHTML = '';
-        
-        // Toon aantal handen
-        const handsElement = document.createElement('div');
-        handsElement.className = 'prediction-item';
-        handsElement.innerHTML = `
-            <span class="prediction-label">Aantal handen</span>
-            <div class="prediction-details">
-                <p>${handCount}</p>
+        this.resultsDiv.innerHTML = `
+            <div class="prediction-item">
+                <span class="prediction-label">Aantal handen</span>
+                <div class="prediction-details">
+                    <p>${handCount}</p>
+                </div>
             </div>
         `;
-        this.resultsDiv.appendChild(handsElement);
         
-        // Toon gebaren per hand
-        if (Array.isArray(handGestures)) {
-            handGestures.forEach((gesture, index) => {
-                const gestureElement = document.createElement('div');
-                gestureElement.className = 'prediction-item';
-                
-                let gestureText;
-                switch(gesture) {
-                    case "duim_omhoog": gestureText = "👍 Duim omhoog"; break;
-                    case "duim_omlaag": gestureText = "👎 Duim omlaag"; break;
-                    case "duim_links": gestureText = "👈 Duim links"; break;
-                    case "duim_rechts": gestureText = "👉 Duim rechts"; break;
-                    case "vuist": gestureText = "✊ Vuist"; break;
-                    default: gestureText = `${gesture} vingers`;
-                }
-                
-                gestureElement.innerHTML = `
+        handGestures.forEach((gesture, index) => {
+            const gestureText = this.getGestureText(gesture);
+            this.resultsDiv.innerHTML += `
+                <div class="prediction-item">
                     <span class="prediction-label">Hand ${index + 1}</span>
                     <div class="prediction-details">
                         <p>${gestureText}</p>
                     </div>
-                `;
-                this.resultsDiv.appendChild(gestureElement);
-            });
+                </div>
+            `;
+        });
+    }
+
+    getGestureText(gesture) {
+        switch(gesture) {
+            case "duim_links": return "👉 Duim rechts"; // Gespiegeld
+            case "duim_rechts": return "👈 Duim links"; // Gespiegeld
+            case "duim_omhoog": return "👍 Duim omhoog";
+            case "duim_omlaag": return "👎 Duim omlaag";
+            case "vuist": return "✊ Vuist";
+            default: return `${gesture} vingers`;
         }
     }
 }
