@@ -1,7 +1,4 @@
-// Gebruik dezelfde API key configuratie als andere modules
-const HF_API_URL = "https://api-inference.huggingface.co/models/facebook/detr-sign-language";
-const HF_API_KEY = config.API_KEY;
-
+// Gebruik TensorFlow.js en HandPose model
 class GestureRecognition {
     constructor() {
         this.isDetecting = false;
@@ -9,9 +6,22 @@ class GestureRecognition {
         this.canvas = document.getElementById('overlay');
         this.toggleBtn = document.getElementById('toggleBtn');
         this.resultsDiv = document.getElementById('gestureResults');
+        this.model = null;
         
         this.setupCamera();
         this.setupEventListeners();
+        this.loadModel();
+    }
+
+    async loadModel() {
+        try {
+            this.resultsDiv.innerHTML = 'Model wordt geladen...';
+            this.model = await handpose.load();
+            this.resultsDiv.innerHTML = 'Model geladen. Klik op Start Herkenning.';
+        } catch (error) {
+            console.error('Model laden mislukt:', error);
+            this.resultsDiv.innerHTML = 'Model laden mislukt. Vernieuw de pagina.';
+        }
     }
 
     async setupCamera() {
@@ -39,32 +49,25 @@ class GestureRecognition {
     }
 
     async detectGestures() {
-        if (!this.isDetecting) return;
-
-        const ctx = this.canvas.getContext('2d');
-        ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
-        const imageData = this.canvas.toDataURL('image/jpeg').split(',')[1];
+        if (!this.isDetecting || !this.model) return;
 
         try {
-            const response = await fetch(HF_API_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${HF_API_KEY}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    inputs: imageData
-                })
-            });
+            const predictions = await this.model.estimateHands(this.webcam);
+            const ctx = this.canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
-            if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
-
-            const result = await response.json();
-            this.drawDetections(result, ctx);
-            this.displayResults(result);
+            if (predictions.length > 0) {
+                this.drawHand(predictions[0], ctx);
+                const fingerCount = this.countFingers(predictions[0]);
+                this.displayResults(fingerCount);
+            } else {
+                this.resultsDiv.innerHTML = '<p>Geen hand gedetecteerd</p>';
+            }
 
             if (this.isDetecting) {
-                setTimeout(() => this.detectGestures(), 500);
+                requestAnimationFrame(() => this.detectGestures());
             }
         } catch (error) {
             console.error('Herkenning mislukt:', error);
@@ -74,51 +77,54 @@ class GestureRecognition {
         }
     }
 
-    drawDetections(detections, ctx) {
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
+    countFingers(hand) {
+        const fingerTips = [4, 8, 12, 16, 20]; // landmarks voor vingertoppen
+        const fingerBases = [2, 6, 10, 14, 18]; // landmarks voor vingerbases
+        let count = 0;
 
-        if (Array.isArray(detections)) {
-            detections.forEach(detection => {
-                const { box, label, score } = detection;
-                const { xmin, ymin, xmax, ymax } = box;
+        fingerTips.forEach((tipId, index) => {
+            const tip = hand.landmarks[tipId];
+            const base = hand.landmarks[fingerBases[index]];
+            if (tip[1] < base[1]) { // Als vingertop hoger is dan basis
+                count++;
+            }
+        });
 
-                // Teken bounding box
-                ctx.strokeStyle = '#10a37f';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(xmin, ymin, xmax - xmin, ymax - ymin);
-
-                // Teken label achtergrond
-                ctx.fillStyle = '#10a37f';
-                const text = `${label} (${Math.round(score * 100)}%)`;
-                ctx.font = '16px Inter';
-                const textWidth = ctx.measureText(text).width;
-                ctx.fillRect(xmin, ymin - 25, textWidth + 10, 25);
-
-                // Teken label tekst
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(text, xmin + 5, ymin - 7);
-            });
-        }
+        return count;
     }
 
-    displayResults(detections) {
-        this.resultsDiv.innerHTML = '';
-        if (Array.isArray(detections) && detections.length > 0) {
-            detections.forEach(detection => {
-                const gestureElement = document.createElement('div');
-                gestureElement.className = 'prediction-item';
-                gestureElement.innerHTML = `
-                    <span class="prediction-label">${detection.label}</span>
-                    <div class="prediction-details">
-                        <p>Betrouwbaarheid: ${Math.round(detection.score * 100)}%</p>
-                    </div>
-                `;
-                this.resultsDiv.appendChild(gestureElement);
-            });
-        } else {
-            this.resultsDiv.innerHTML = '<p>Geen gebaren gedetecteerd</p>';
-        }
+    drawHand(hand, ctx) {
+        // Teken handpunten
+        hand.landmarks.forEach(point => {
+            ctx.beginPath();
+            ctx.arc(point[0], point[1], 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#10a37f';
+            ctx.fill();
+        });
+
+        // Teken verbindingen
+        const fingers = [[0,1,2,3,4], [0,5,6,7,8], [0,9,10,11,12], [0,13,14,15,16], [0,17,18,19,20]];
+        fingers.forEach(finger => {
+            ctx.beginPath();
+            ctx.moveTo(hand.landmarks[finger[0]][0], hand.landmarks[finger[0]][1]);
+            for (let i = 1; i < finger.length; i++) {
+                ctx.lineTo(hand.landmarks[finger[i]][0], hand.landmarks[finger[i]][1]);
+            }
+            ctx.strokeStyle = '#10a37f';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        });
+    }
+
+    displayResults(fingerCount) {
+        this.resultsDiv.innerHTML = `
+            <div class="prediction-item">
+                <span class="prediction-label">Aantal opgestoken vingers</span>
+                <div class="prediction-details">
+                    <p>${fingerCount}</p>
+                </div>
+            </div>
+        `;
     }
 }
 
