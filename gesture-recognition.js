@@ -83,6 +83,7 @@ class GestureRecognition {
     countFingers(hand) {
         const fingerTips = [4, 8, 12, 16, 20]; // landmarks voor vingertoppen
         const fingerBases = [2, 6, 10, 14, 18]; // landmarks voor vingerbases
+        const palmBase = hand.landmarks[0]; // basis van de palm
         let count = 0;
 
         // Check voor gesloten vuist (alle vingers gebogen)
@@ -92,8 +93,14 @@ class GestureRecognition {
             const tip = hand.landmarks[tipId];
             const base = hand.landmarks[fingerBases[index]];
             
-            // Als vingertop hoger is dan basis
-            if (tip[1] < base[1]) {
+            // Bereken de afstand tussen vingertop en basis
+            const tipToPalmY = Math.abs(tip[1] - palmBase[1]);
+            const baseToTipY = Math.abs(base[1] - tip[1]);
+            
+            // Vinger is uitgestoken als:
+            // 1. De vingertop significant hoger is dan de basis
+            // 2. De afstand tussen top en palm groot genoeg is
+            if (tip[1] < base[1] && baseToTipY > 30 && tipToPalmY > 40) {
                 count++;
                 isFist = false;
             }
