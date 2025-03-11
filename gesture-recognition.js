@@ -1,3 +1,7 @@
+// Gebruik dezelfde API key configuratie als andere modules
+const HF_API_URL = "https://api-inference.huggingface.co/models/microsoft/hand-pose-recognition-0.1";
+const HF_API_KEY = config.API_KEY;
+
 class GestureRecognition {
     constructor() {
         this.isDetecting = false;
@@ -42,7 +46,7 @@ class GestureRecognition {
         const imageData = this.canvas.toDataURL('image/jpeg').split(',')[1];
 
         try {
-            const response = await fetch("https://api-inference.huggingface.co/models/microsoft/hand-pose-recognition-0.1", {
+            const response = await fetch(HF_API_URL, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${HF_API_KEY}`,
