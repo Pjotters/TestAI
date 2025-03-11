@@ -80,60 +80,37 @@ class GestureRecognition {
     }
 
     countFingers(hand) {
+        // Detecteer eerst speciale gebaren
+        const specialGesture = this.detectSpecialGesture(hand);
+        if (specialGesture) {
+            return specialGesture;
+        }
+
         const fingerTips = [4, 8, 12, 16, 20];
         const fingerMids = [3, 7, 11, 15, 19];
         const fingerBases = [2, 6, 10, 14, 18];
         const palmBase = hand.landmarks[0];
         let count = 0;
         
-        // Verbeterde vuistdetectie
-        let extendedFingers = 0;
-        let fingerDistances = [];
-        
-        // Bereken eerst alle vinger-tot-palm afstanden
         fingerTips.forEach((tipId, index) => {
             const tip = hand.landmarks[tipId];
             const mid = hand.landmarks[fingerMids[index]];
             const base = hand.landmarks[fingerBases[index]];
             
-            // Afstand tussen vingertop en palm
-            const tipToPalmDist = Math.hypot(
-                tip[0] - palmBase[0],
-                tip[1] - palmBase[1]
-            );
-            
-            // Afstand tussen basis en palm
-            const baseToPalmDist = Math.hypot(
-                base[0] - palmBase[0],
-                base[1] - palmBase[1]
-            );
-            
-            // Verhouding tussen deze afstanden
-            const ratio = tipToPalmDist / baseToPalmDist;
-            fingerDistances.push(ratio);
-            
-            // Check voor uitgestoken vinger
-            const isExtended = ratio > 1.3; // Vinger is significant langer dan basis
-            
-            if (isExtended) {
-                count++;
-                extendedFingers++;
+            // Verbeterde vingerdetectie
+            if (index === 0) { // Duim
+                // Duim wordt apart gecontroleerd in detectSpecialGesture
+                return;
+            } else {
+                // Voor andere vingers
+                const fingerIsExtended = tip[1] < base[1] - 30;
+                if (fingerIsExtended) {
+                    count++;
+                }
             }
         });
         
-        // Vuistdetectie: alle vingers hebben vergelijkbare ratio's en zijn dicht bij de palm
-        const avgRatio = fingerDistances.reduce((a, b) => a + b, 0) / fingerDistances.length;
-        const maxDeviation = Math.max(...fingerDistances.map(r => Math.abs(r - avgRatio)));
-        
-        const isClosedFist = maxDeviation < 0.2 && avgRatio < 1.2;
-        
-        // Detecteer speciale gebaren
-        const specialGesture = this.detectSpecialGesture(hand);
-        if (specialGesture) {
-            return specialGesture;
-        }
-        
-        return isClosedFist ? "vuist" : count;
+        return count > 0 ? count : "vuist";
     }
 
     detectSpecialGesture(hand) {
@@ -143,30 +120,24 @@ class GestureRecognition {
             base: hand.landmarks[2]
         };
         
-        const indexFinger = {
-            tip: hand.landmarks[8],
-            mid: hand.landmarks[7],
-            base: hand.landmarks[6]
-        };
-        
-        // Duim omhoog detectie
+        // Duim omhoog
         if (this.isThumbUp(thumb, hand.landmarks[0])) {
             return "duim_omhoog";
         }
         
-        // Duim omlaag detectie
+        // Duim omlaag
         if (this.isThumbDown(thumb, hand.landmarks[0])) {
             return "duim_omlaag";
         }
         
-        // Peace teken
-        if (this.isPeaceSign(indexFinger, hand.landmarks[12])) {
-            return "peace";
+        // Duim links
+        if (this.isThumbLeft(thumb, hand.landmarks[0])) {
+            return "duim_links";
         }
         
-        // OK teken
-        if (this.isOkSign(thumb, indexFinger)) {
-            return "ok";
+        // Duim rechts
+        if (this.isThumbRight(thumb, hand.landmarks[0])) {
+            return "duim_rechts";
         }
         
         return null;
@@ -180,30 +151,29 @@ class GestureRecognition {
         return thumb.tip[1] > palm[1] && thumb.tip[1] > thumb.base[1];
     }
 
-    isPeaceSign(indexFinger, middleFinger) {
-        return indexFinger.tip[1] < indexFinger.base[1] && 
-               middleFinger[1] < indexFinger.base[1] &&
-               Math.abs(indexFinger.tip[0] - middleFinger[0]) > 30;
+    isThumbLeft(thumb, palm) {
+        return thumb.tip[0] < palm[0] - 30 && 
+               Math.abs(thumb.tip[1] - palm[1]) < 50;
     }
 
-    isOkSign(thumb, indexFinger) {
-        const distance = Math.hypot(
-            thumb.tip[0] - indexFinger.tip[0],
-            thumb.tip[1] - indexFinger.tip[1]
-        );
-        return distance < 20;
+    isThumbRight(thumb, palm) {
+        return thumb.tip[0] > palm[0] + 30 && 
+               Math.abs(thumb.tip[1] - palm[1]) < 50;
     }
 
     drawHand(hand, ctx) {
-        // Teken handpunten
+        // Haal de kleur van de Start/Stop knop
+        const buttonColor = getComputedStyle(this.toggleBtn).backgroundColor;
+        
+        // Teken de handpunten
         hand.landmarks.forEach(point => {
             ctx.beginPath();
-            ctx.arc(point[0], point[1], 5, 0, 2 * Math.PI);
-            ctx.fillStyle = '#10a37f';
+            ctx.arc(point[0], point[1], 5, 0, 3 * Math.PI);
+            ctx.fillStyle = buttonColor;
             ctx.fill();
         });
 
-        // Teken verbindingen
+        // Teken de verbindingen
         const fingers = [[0,1,2,3,4], [0,5,6,7,8], [0,9,10,11,12], [0,13,14,15,16], [0,17,18,19,20]];
         fingers.forEach(finger => {
             ctx.beginPath();
@@ -211,7 +181,7 @@ class GestureRecognition {
             for (let i = 1; i < finger.length; i++) {
                 ctx.lineTo(hand.landmarks[finger[i]][0], hand.landmarks[finger[i]][1]);
             }
-            ctx.strokeStyle = '#10a37f';
+            ctx.strokeStyle = buttonColor;
             ctx.lineWidth = 2;
             ctx.stroke();
         });
@@ -241,8 +211,8 @@ class GestureRecognition {
                 switch(gesture) {
                     case "duim_omhoog": gestureText = "👍 Duim omhoog"; break;
                     case "duim_omlaag": gestureText = "👎 Duim omlaag"; break;
-                    case "peace": gestureText = "✌️ Peace"; break;
-                    case "ok": gestureText = "👌 OK"; break;
+                    case "duim_links": gestureText = "👈 Duim links"; break;
+                    case "duim_rechts": gestureText = "👉 Duim rechts"; break;
                     case "vuist": gestureText = "✊ Vuist"; break;
                     default: gestureText = `${gesture} vingers`;
                 }
