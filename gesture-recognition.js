@@ -58,12 +58,15 @@ class GestureRecognition {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
+            let totalFingers = 0;
             if (predictions.length > 0) {
-                this.drawHand(predictions[0], ctx);
-                const fingerCount = this.countFingers(predictions[0]);
-                this.displayResults(fingerCount);
+                predictions.forEach(hand => {
+                    this.drawHand(hand, ctx);
+                    totalFingers += this.countFingers(hand);
+                });
+                this.displayResults(totalFingers, predictions.length);
             } else {
-                this.resultsDiv.innerHTML = '<p>Geen hand gedetecteerd</p>';
+                this.resultsDiv.innerHTML = '<p>Geen handen gedetecteerd</p>';
             }
 
             if (this.isDetecting) {
@@ -82,15 +85,21 @@ class GestureRecognition {
         const fingerBases = [2, 6, 10, 14, 18]; // landmarks voor vingerbases
         let count = 0;
 
+        // Check voor gesloten vuist (alle vingers gebogen)
+        let isFist = true;
+        
         fingerTips.forEach((tipId, index) => {
             const tip = hand.landmarks[tipId];
             const base = hand.landmarks[fingerBases[index]];
-            if (tip[1] < base[1]) { // Als vingertop hoger is dan basis
+            
+            // Als vingertop hoger is dan basis
+            if (tip[1] < base[1]) {
                 count++;
+                isFist = false;
             }
         });
 
-        return count;
+        return isFist ? 0 : count;
     }
 
     drawHand(hand, ctx) {
@@ -116,12 +125,18 @@ class GestureRecognition {
         });
     }
 
-    displayResults(fingerCount) {
+    displayResults(totalFingers, handCount) {
         this.resultsDiv.innerHTML = `
             <div class="prediction-item">
-                <span class="prediction-label">Aantal opgestoken vingers</span>
+                <span class="prediction-label">Aantal handen</span>
                 <div class="prediction-details">
-                    <p>${fingerCount}</p>
+                    <p>${handCount}</p>
+                </div>
+            </div>
+            <div class="prediction-item">
+                <span class="prediction-label">Totaal aantal vingers</span>
+                <div class="prediction-details">
+                    <p>${totalFingers}</p>
                 </div>
             </div>
         `;
