@@ -1,5 +1,5 @@
 // Gebruik dezelfde API key configuratie als andere modules
-const HF_API_URL = "https://api-inference.huggingface.co/models/microsoft/hand-pose-recognition-0.1";
+const HF_API_URL = "https://api-inference.huggingface.co/models/google/mediapipe-hands";
 const HF_API_KEY = config.API_KEY;
 
 class GestureRecognition {
@@ -24,7 +24,7 @@ class GestureRecognition {
             this.canvas.height = 480;
         } catch (error) {
             console.error('Camera toegang mislukt:', error);
-            this.resultsDiv.innerHTML = 'Camera toegang is vereist voor gebarentaal herkenning';
+            this.resultsDiv.innerHTML = 'Camera toegang is vereist voor gebarenherkenning';
         }
     }
 
@@ -55,9 +55,10 @@ class GestureRecognition {
                 body: JSON.stringify({ inputs: imageData })
             });
 
-            if (!response.ok) throw new Error('API verzoek mislukt');
+            if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
 
             const result = await response.json();
+            this.drawHandLandmarks(result, ctx);
             this.displayResults(result);
 
             // Volgende frame
@@ -72,23 +73,40 @@ class GestureRecognition {
         }
     }
 
+    drawHandLandmarks(results, ctx) {
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
+
+        if (Array.isArray(results) && results.length > 0) {
+            results.forEach(hand => {
+                // Teken handpunten
+                hand.forEach(point => {
+                    ctx.beginPath();
+                    ctx.arc(point.x * this.canvas.width, point.y * this.canvas.height, 5, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#10a37f';
+                    ctx.fill();
+                });
+            });
+        }
+    }
+
     displayResults(results) {
         this.resultsDiv.innerHTML = '';
         if (Array.isArray(results) && results.length > 0) {
-            results.forEach(gesture => {
-                const gestureElement = document.createElement('div');
-                gestureElement.className = 'prediction-item';
-                gestureElement.innerHTML = `
-                    <span class="prediction-label">${gesture.label}</span>
-                    <div class="prediction-bar">
-                        <div class="bar" style="width: ${gesture.score * 100}%"></div>
-                        <span class="percentage">${Math.round(gesture.score * 100)}%</span>
-                    </div>
-                `;
-                this.resultsDiv.appendChild(gestureElement);
-            });
+            const handCount = results.length;
+            const gestureElement = document.createElement('div');
+            gestureElement.className = 'prediction-item';
+            gestureElement.innerHTML = `
+                <span class="prediction-label">Gedetecteerde handen: ${handCount}</span>
+                <div class="prediction-details">
+                    ${results.map((hand, index) => `
+                        <p>Hand ${index + 1}: ${hand.length} landmarks gedetecteerd</p>
+                    `).join('')}
+                </div>
+            `;
+            this.resultsDiv.appendChild(gestureElement);
         } else {
-            this.resultsDiv.innerHTML = '<p>Geen gebaren gedetecteerd</p>';
+            this.resultsDiv.innerHTML = '<p>Geen handen gedetecteerd</p>';
         }
     }
 }
