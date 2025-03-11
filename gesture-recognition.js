@@ -52,18 +52,22 @@ class GestureRecognition {
         if (!this.isDetecting || !this.model) return;
 
         try {
-            const predictions = await this.model.estimateHands(this.webcam);
-            const ctx = this.canvas.getContext('2d');
+            // Verhoog maxHands naar 2 voor betere meerdere-handen detectie
+            const predictions = await this.model.estimateHands(this.webcam, {
+                flipHorizontal: true, // Voor gespiegelde weergave
+                maxHands: 2 // Sta maximaal 2 handen toe
+            });
             
+            const ctx = this.canvas.getContext('2d');
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
             if (predictions.length > 0) {
-                predictions.forEach(hand => {
+                const handGestures = predictions.map(hand => {
                     this.drawHand(hand, ctx);
+                    return this.countFingers(hand);
                 });
                 
-                const handGestures = predictions.map(hand => this.countFingers(hand));
                 this.displayResults(handGestures, predictions.length);
             } else {
                 this.resultsDiv.innerHTML = '<p>Geen handen gedetecteerd</p>';
