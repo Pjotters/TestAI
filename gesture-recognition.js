@@ -1,5 +1,5 @@
 // Gebruik dezelfde API key configuratie als andere modules
-const HF_API_URL = "https://api-inference.huggingface.co/models/yolov7-object-detection/yolov7";
+const HF_API_URL = "https://api-inference.huggingface.co/models/facebook/detr-resnet-50";
 const HF_API_KEY = config.API_KEY;
 
 class GestureRecognition {
@@ -78,26 +78,33 @@ class GestureRecognition {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
-        detections.forEach(detection => {
-            const [x0, y0, x1, y1] = detection.box;
-            const label = detection.label;
-            const score = detection.score;
+        if (Array.isArray(detections)) {
+            detections.forEach(detection => {
+                const { xmin, ymin, xmax, ymax } = detection.box;
+                const label = detection.label;
+                const score = detection.score;
 
-            // Teken bounding box
-            ctx.strokeStyle = '#10a37f';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+                // Teken bounding box
+                ctx.strokeStyle = '#10a37f';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(xmin, ymin, xmax - xmin, ymax - ymin);
 
-            // Teken label
-            ctx.fillStyle = '#10a37f';
-            ctx.font = '16px Arial';
-            ctx.fillText(`${label} (${Math.round(score * 100)}%)`, x0, y0 - 5);
-        });
+                // Teken label achtergrond
+                ctx.fillStyle = '#10a37f';
+                ctx.font = '16px Inter';
+                const textWidth = ctx.measureText(label).width;
+                ctx.fillRect(xmin, ymin - 25, textWidth + 10, 25);
+
+                // Teken label tekst
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(`${label} (${Math.round(score * 100)}%)`, xmin + 5, ymin - 7);
+            });
+        }
     }
 
     displayResults(detections) {
         this.resultsDiv.innerHTML = '';
-        if (detections && detections.length > 0) {
+        if (Array.isArray(detections) && detections.length > 0) {
             detections.forEach(detection => {
                 const gestureElement = document.createElement('div');
                 gestureElement.className = 'prediction-item';
@@ -110,7 +117,7 @@ class GestureRecognition {
                 this.resultsDiv.appendChild(gestureElement);
             });
         } else {
-            this.resultsDiv.innerHTML = '<p>Geen gebaren gedetecteerd</p>';
+            this.resultsDiv.innerHTML = '<p>Geen objecten gedetecteerd</p>';
         }
     }
 }
