@@ -80,41 +80,40 @@ class GestureRecognition {
     }
 
     countFingers(hand) {
-        const fingerTips = [4, 8, 12, 16, 20]; // landmarks voor vingertoppen
-        const fingerMids = [3, 7, 11, 15, 19]; // middelste kootje
-        const fingerBases = [2, 6, 10, 14, 18]; // vingerbases
-        const palmBase = hand.landmarks[0]; // basis van de palm
+        const fingerTips = [4, 8, 12, 16, 20];
+        const fingerMids = [3, 7, 11, 15, 19];
+        const fingerBases = [2, 6, 10, 14, 18];
+        const palmBase = hand.landmarks[0];
         let count = 0;
         
         // Verbeterde vuistdetectie
         let extendedFingers = 0;
-        let totalDistance = 0;
+        let fingerDistances = [];
         
+        // Bereken eerst alle vinger-tot-palm afstanden
         fingerTips.forEach((tipId, index) => {
             const tip = hand.landmarks[tipId];
             const mid = hand.landmarks[fingerMids[index]];
             const base = hand.landmarks[fingerBases[index]];
             
-            // Bereken hoeken en afstanden
-            const angleBase = Math.atan2(mid[1] - base[1], mid[0] - base[0]);
-            const angleTip = Math.atan2(tip[1] - mid[1], tip[0] - mid[0]);
-            const fingerAngle = Math.abs(angleTip - angleBase);
-            
-            const tipToMidDist = Math.hypot(tip[0] - mid[0], tip[1] - mid[1]);
-            const midToBaseDist = Math.hypot(mid[0] - base[0], mid[1] - base[1]);
-            
-            totalDistance += tipToMidDist;
-            
-            // Vinger is uitgestoken als:
-            // 1. De hoek tussen de kootjes relatief recht is
-            // 2. De afstand tussen de gewrichten significant is
-            // 3. De vingertop hoger is dan de basis (behalve voor de duim)
-            const isExtended = (
-                (fingerAngle < 0.5 || index === 0) && // Minder streng voor de duim
-                tipToMidDist > 20 &&
-                midToBaseDist > 20 &&
-                (index === 0 ? tip[0] < base[0] : tip[1] < base[1]) // Speciale check voor duim
+            // Afstand tussen vingertop en palm
+            const tipToPalmDist = Math.hypot(
+                tip[0] - palmBase[0],
+                tip[1] - palmBase[1]
             );
+            
+            // Afstand tussen basis en palm
+            const baseToPalmDist = Math.hypot(
+                base[0] - palmBase[0],
+                base[1] - palmBase[1]
+            );
+            
+            // Verhouding tussen deze afstanden
+            const ratio = tipToPalmDist / baseToPalmDist;
+            fingerDistances.push(ratio);
+            
+            // Check voor uitgestoken vinger
+            const isExtended = ratio > 1.3; // Vinger is significant langer dan basis
             
             if (isExtended) {
                 count++;
@@ -122,10 +121,77 @@ class GestureRecognition {
             }
         });
         
-        // Vuistdetectie: als vingers dicht bij elkaar en gebogen zijn
-        const isClosedFist = totalDistance < 150 && extendedFingers === 0;
+        // Vuistdetectie: alle vingers hebben vergelijkbare ratio's en zijn dicht bij de palm
+        const avgRatio = fingerDistances.reduce((a, b) => a + b, 0) / fingerDistances.length;
+        const maxDeviation = Math.max(...fingerDistances.map(r => Math.abs(r - avgRatio)));
+        
+        const isClosedFist = maxDeviation < 0.2 && avgRatio < 1.2;
+        
+        // Detecteer speciale gebaren
+        const specialGesture = this.detectSpecialGesture(hand);
+        if (specialGesture) {
+            return specialGesture;
+        }
         
         return isClosedFist ? "vuist" : count;
+    }
+
+    detectSpecialGesture(hand) {
+        const thumb = {
+            tip: hand.landmarks[4],
+            mid: hand.landmarks[3],
+            base: hand.landmarks[2]
+        };
+        
+        const indexFinger = {
+            tip: hand.landmarks[8],
+            mid: hand.landmarks[7],
+            base: hand.landmarks[6]
+        };
+        
+        // Duim omhoog detectie
+        if (this.isThumbUp(thumb, hand.landmarks[0])) {
+            return "duim_omhoog";
+        }
+        
+        // Duim omlaag detectie
+        if (this.isThumbDown(thumb, hand.landmarks[0])) {
+            return "duim_omlaag";
+        }
+        
+        // Peace teken
+        if (this.isPeaceSign(indexFinger, hand.landmarks[12])) {
+            return "peace";
+        }
+        
+        // OK teken
+        if (this.isOkSign(thumb, indexFinger)) {
+            return "ok";
+        }
+        
+        return null;
+    }
+
+    isThumbUp(thumb, palm) {
+        return thumb.tip[1] < palm[1] && thumb.tip[1] < thumb.base[1];
+    }
+
+    isThumbDown(thumb, palm) {
+        return thumb.tip[1] > palm[1] && thumb.tip[1] > thumb.base[1];
+    }
+
+    isPeaceSign(indexFinger, middleFinger) {
+        return indexFinger.tip[1] < indexFinger.base[1] && 
+               middleFinger[1] < indexFinger.base[1] &&
+               Math.abs(indexFinger.tip[0] - middleFinger[0]) > 30;
+    }
+
+    isOkSign(thumb, indexFinger) {
+        const distance = Math.hypot(
+            thumb.tip[0] - indexFinger.tip[0],
+            thumb.tip[1] - indexFinger.tip[1]
+        );
+        return distance < 20;
     }
 
     drawHand(hand, ctx) {
@@ -151,7 +217,7 @@ class GestureRecognition {
         });
     }
 
-    displayResults(totalFingers, handCount) {
+    displayResults(handGestures, handCount) {
         this.resultsDiv.innerHTML = '';
         
         // Toon aantal handen
@@ -165,15 +231,26 @@ class GestureRecognition {
         `;
         this.resultsDiv.appendChild(handsElement);
         
-        // Toon gebaar per hand
-        if (Array.isArray(totalFingers)) {
-            totalFingers.forEach((gesture, index) => {
+        // Toon gebaren per hand
+        if (Array.isArray(handGestures)) {
+            handGestures.forEach((gesture, index) => {
                 const gestureElement = document.createElement('div');
                 gestureElement.className = 'prediction-item';
+                
+                let gestureText;
+                switch(gesture) {
+                    case "duim_omhoog": gestureText = "👍 Duim omhoog"; break;
+                    case "duim_omlaag": gestureText = "👎 Duim omlaag"; break;
+                    case "peace": gestureText = "✌️ Peace"; break;
+                    case "ok": gestureText = "👌 OK"; break;
+                    case "vuist": gestureText = "✊ Vuist"; break;
+                    default: gestureText = `${gesture} vingers`;
+                }
+                
                 gestureElement.innerHTML = `
                     <span class="prediction-label">Hand ${index + 1}</span>
                     <div class="prediction-details">
-                        <p>${gesture === "vuist" ? "Vuist" : `${gesture} vingers`}</p>
+                        <p>${gestureText}</p>
                     </div>
                 `;
                 this.resultsDiv.appendChild(gestureElement);
