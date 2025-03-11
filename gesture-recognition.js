@@ -1,5 +1,5 @@
 // Gebruik dezelfde API key configuratie als andere modules
-const HF_API_URL = "https://api-inference.huggingface.co/models/keras-io/hand-pose-estimation";
+const HF_API_URL = "https://api-inference.huggingface.co/models/yolov7-object-detection/yolov7";
 const HF_API_KEY = config.API_KEY;
 
 class GestureRecognition {
@@ -53,16 +53,14 @@ class GestureRecognition {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    inputs: {
-                        image: imageData
-                    }
+                    inputs: imageData
                 })
             });
 
             if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
 
             const result = await response.json();
-            this.drawHandLandmarks(result, ctx);
+            this.drawDetections(result, ctx);
             this.displayResults(result);
 
             if (this.isDetecting) {
@@ -76,39 +74,43 @@ class GestureRecognition {
         }
     }
 
-    drawHandLandmarks(results, ctx) {
+    drawDetections(detections, ctx) {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
-        if (results && results.keypoints) {
-            results.keypoints.forEach(point => {
-                ctx.beginPath();
-                ctx.arc(
-                    point.x * this.canvas.width, 
-                    point.y * this.canvas.height, 
-                    3, 0, 2 * Math.PI
-                );
-                ctx.fillStyle = '#10a37f';
-                ctx.fill();
-            });
-        }
+        detections.forEach(detection => {
+            const [x0, y0, x1, y1] = detection.box;
+            const label = detection.label;
+            const score = detection.score;
+
+            // Teken bounding box
+            ctx.strokeStyle = '#10a37f';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+
+            // Teken label
+            ctx.fillStyle = '#10a37f';
+            ctx.font = '16px Arial';
+            ctx.fillText(`${label} (${Math.round(score * 100)}%)`, x0, y0 - 5);
+        });
     }
 
-    displayResults(results) {
+    displayResults(detections) {
         this.resultsDiv.innerHTML = '';
-        if (results && results.keypoints) {
-            const gestureElement = document.createElement('div');
-            gestureElement.className = 'prediction-item';
-            gestureElement.innerHTML = `
-                <span class="prediction-label">Hand gedetecteerd</span>
-                <div class="prediction-details">
-                    <p>Aantal keypoints: ${results.keypoints.length}</p>
-                    <p>Betrouwbaarheid: ${Math.round(results.score * 100)}%</p>
-                </div>
-            `;
-            this.resultsDiv.appendChild(gestureElement);
+        if (detections && detections.length > 0) {
+            detections.forEach(detection => {
+                const gestureElement = document.createElement('div');
+                gestureElement.className = 'prediction-item';
+                gestureElement.innerHTML = `
+                    <span class="prediction-label">${detection.label}</span>
+                    <div class="prediction-details">
+                        <p>Betrouwbaarheid: ${Math.round(detection.score * 100)}%</p>
+                    </div>
+                `;
+                this.resultsDiv.appendChild(gestureElement);
+            });
         } else {
-            this.resultsDiv.innerHTML = '<p>Geen handen gedetecteerd</p>';
+            this.resultsDiv.innerHTML = '<p>Geen gebaren gedetecteerd</p>';
         }
     }
 }
