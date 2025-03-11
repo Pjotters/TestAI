@@ -1,5 +1,5 @@
 // Gebruik dezelfde API key configuratie als andere modules
-const HF_API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32";
+const HF_API_URL = "https://api-inference.huggingface.co/models/facebook/detr-sign-language";
 const HF_API_KEY = config.API_KEY;
 
 class GestureRecognition {
@@ -9,20 +9,6 @@ class GestureRecognition {
         this.canvas = document.getElementById('overlay');
         this.toggleBtn = document.getElementById('toggleBtn');
         this.resultsDiv = document.getElementById('gestureResults');
-        
-        // Vooraf gedefinieerde gebaren voor CLIP model
-        this.gestures = [
-            "a hand making thumbs up gesture",
-            "a hand waving hello",
-            "a hand making peace sign",
-            "a hand pointing",
-            "a closed fist",
-            "an open palm",
-            "counting numbers with fingers",
-            "sign language letter A",
-            "sign language letter B",
-            "sign language letter C"
-        ];
         
         this.setupCamera();
         this.setupEventListeners();
@@ -67,17 +53,15 @@ class GestureRecognition {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    inputs: {
-                        image: imageData,
-                        text: this.gestures
-                    }
+                    inputs: imageData
                 })
             });
 
             if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
 
             const result = await response.json();
-            this.displayGestureResults(result);
+            this.drawDetections(result, ctx);
+            this.displayResults(result);
 
             if (this.isDetecting) {
                 setTimeout(() => this.detectGestures(), 500);
@@ -90,28 +74,44 @@ class GestureRecognition {
         }
     }
 
-    displayGestureResults(results) {
-        this.resultsDiv.innerHTML = '';
-        if (results && Array.isArray(results)) {
-            // Sorteer op hoogste score
-            const bestMatches = results
-                .map((score, index) => ({
-                    gesture: this.gestures[index].replace('a hand making ', '')
-                        .replace('sign language ', '')
-                        .replace('a ', '')
-                        .replace('an ', ''),
-                    score: score
-                }))
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 3); // Toon top 3 matches
+    drawDetections(detections, ctx) {
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
-            bestMatches.forEach(match => {
+        if (Array.isArray(detections)) {
+            detections.forEach(detection => {
+                const { box, label, score } = detection;
+                const { xmin, ymin, xmax, ymax } = box;
+
+                // Teken bounding box
+                ctx.strokeStyle = '#10a37f';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(xmin, ymin, xmax - xmin, ymax - ymin);
+
+                // Teken label achtergrond
+                ctx.fillStyle = '#10a37f';
+                const text = `${label} (${Math.round(score * 100)}%)`;
+                ctx.font = '16px Inter';
+                const textWidth = ctx.measureText(text).width;
+                ctx.fillRect(xmin, ymin - 25, textWidth + 10, 25);
+
+                // Teken label tekst
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(text, xmin + 5, ymin - 7);
+            });
+        }
+    }
+
+    displayResults(detections) {
+        this.resultsDiv.innerHTML = '';
+        if (Array.isArray(detections) && detections.length > 0) {
+            detections.forEach(detection => {
                 const gestureElement = document.createElement('div');
                 gestureElement.className = 'prediction-item';
                 gestureElement.innerHTML = `
-                    <span class="prediction-label">${match.gesture}</span>
+                    <span class="prediction-label">${detection.label}</span>
                     <div class="prediction-details">
-                        <p>Betrouwbaarheid: ${Math.round(match.score * 100)}%</p>
+                        <p>Betrouwbaarheid: ${Math.round(detection.score * 100)}%</p>
                     </div>
                 `;
                 this.resultsDiv.appendChild(gestureElement);
