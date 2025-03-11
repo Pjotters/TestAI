@@ -990,4 +990,22 @@ textarea {
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
+}
+
+.ai-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(16, 163, 127, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    border-top: 1px solid rgba(16, 163, 127, 0.2);
+}
+
+.ai-footer p {
+    margin: 0;
 } 

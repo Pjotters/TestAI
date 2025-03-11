@@ -59,10 +59,11 @@ class GestureRecognition {
             ctx.drawImage(this.webcam, 0, 0, this.canvas.width, this.canvas.height);
 
             if (predictions.length > 0) {
-                const handGestures = predictions.map(hand => {
+                predictions.forEach(hand => {
                     this.drawHand(hand, ctx);
-                    return this.countFingers(hand);
                 });
+                
+                const handGestures = predictions.map(hand => this.countFingers(hand));
                 this.displayResults(handGestures, predictions.length);
             } else {
                 this.resultsDiv.innerHTML = '<p>Geen handen gedetecteerd</p>';
@@ -86,28 +87,31 @@ class GestureRecognition {
         const palmBase = hand.landmarks[0];
         let count = 0;
 
-        // Detecteer eerst speciale gebaren
-        const specialGesture = this.detectSpecialGesture(hand);
-        if (specialGesture) {
-            return specialGesture;
-        }
-        
+        // Verbeterde vingerdetectie
         fingerTips.forEach((tipId, index) => {
             const tip = hand.landmarks[tipId];
             const mid = hand.landmarks[fingerMids[index]];
             const base = hand.landmarks[fingerBases[index]];
             
-            // Verbeterde vingerdetectie voor alle vingers
             if (index === 0) { // Duim
-                const isExtended = Math.abs(tip[0] - base[0]) > 30;
+                const isExtended = Math.abs(tip[0] - base[0]) > 40 && 
+                                 Math.abs(tip[1] - mid[1]) > 20;
                 if (isExtended) count++;
             } else {
-                const fingerIsExtended = tip[1] < base[1] - 20;
-                if (fingerIsExtended) count++;
+                // Voor andere vingers: check zowel y-positie als hoek
+                const fingerAngle = Math.atan2(tip[1] - base[1], tip[0] - base[0]);
+                const isExtended = tip[1] < base[1] - 30 && Math.abs(fingerAngle) > 0.3;
+                if (isExtended) count++;
             }
         });
-        
-        return count > 0 ? count : "vuist";
+
+        // Check voor speciale gebaren als er geen vingers geteld zijn
+        if (count === 0) {
+            const specialGesture = this.detectSpecialGesture(hand);
+            return specialGesture || "vuist";
+        }
+
+        return count;
     }
 
     detectSpecialGesture(hand) {
