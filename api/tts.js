@@ -6,44 +6,35 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Log de binnenkomende request
-        console.log('TTS Request:', req.body.text);
-
-        // Gebruik een betrouwbaar en simpel model
-        const response = await fetch("https://api-inference.huggingface.co/models/gpt2", {
+        // Gebruik Coqui TTS - een betrouwbaar model
+        const response = await fetch("https://api-inference.huggingface.co/models/coqui/xtts-v2", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                text: req.body.text
+                inputs: {
+                    text: req.body.text,
+                    language: "nl"
+                }
             })
         });
 
-        // Check direct de response status
         if (!response.ok) {
-            // Lees de error response één keer
-            const errorBody = await response.text();
-            console.error('HuggingFace API Error:', errorBody);
-            return res.status(500).json({
-                error: 'TTS API Error',
-                message: errorBody
+            return res.status(response.status).json({
+                error: 'HuggingFace API Error',
+                status: response.status
             });
         }
 
-        // Lees de success response één keer
-        const audioBuffer = await response.arrayBuffer();
-        
-        // Stuur de audio terug
+        // Direct de binary data doorsturen
+        const data = await response.arrayBuffer();
         res.setHeader('Content-Type', 'audio/mpeg');
-        return res.send(Buffer.from(audioBuffer));
+        res.status(200).send(Buffer.from(data));
 
     } catch (error) {
-        console.error('TTS Server Error:', error);
-        return res.status(500).json({
-            error: 'Server Error',
-            message: error.message
-        });
+        console.error('TTS Error:', error);
+        res.status(500).json({ error: error.message });
     }
 } 
