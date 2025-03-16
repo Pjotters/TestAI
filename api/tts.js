@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const response = await fetch("https://api-inference.huggingface.co/models/facebook/mms-tts-nld", {
+        const response = await fetch("https://api-inference.huggingface.co/models/espnet/kan-bayashi_ljspeech_vits", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
