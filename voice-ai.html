@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="ai-styles.css">
     <link rel="icon" type="image/png" href="Logo-met.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <nav class="glass-nav">
@@ -50,40 +51,54 @@
     </footer>
 
     <script src="config.js"></script>
-    <script src="text-to-speech.js"></script>
-    <script src="voice-cloning.js"></script>
+    <script src="ai-functions.js"></script>
     <script>
-        // Initialisatie
-        const tts = new TextToSpeech();
-        const voiceCloning = new VoiceCloning();
-        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordedAudioBlob = null;
 
         // Text-to-Speech
         document.getElementById('ttsButton').addEventListener('click', async () => {
             const text = document.getElementById('ttsInput').value;
             if (text) {
-                await tts.convertToSpeech(text);
+                await textToSpeech(text);
+            }
+        });
+
+        // Voice Recording
+        document.getElementById('recordButton').addEventListener('click', async () => {
+            if (!mediaRecorder) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        recordedAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        document.getElementById('cloneButton').disabled = false;
+                    };
+
+                    mediaRecorder.start();
+                    document.getElementById('recordButton').innerHTML = '<span class="material-icons">stop</span>Stop Opname';
+                } catch (error) {
+                    console.error('Opname starten mislukt:', error);
+                }
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder = null;
+                document.getElementById('recordButton').innerHTML = '<span class="material-icons">mic</span>Start Opname';
             }
         });
 
         // Voice Cloning
-        document.getElementById('recordButton').addEventListener('click', async () => {
-            if (!isRecording) {
-                isRecording = true;
-                document.getElementById('recordButton').innerHTML = '<span class="material-icons">stop</span>Stop Opname';
-                await voiceCloning.startRecording();
-            } else {
-                isRecording = false;
-                document.getElementById('recordButton').innerHTML = '<span class="material-icons">mic</span>Start Opname';
-                const audioBlob = await voiceCloning.stopRecording();
-                document.getElementById('cloneButton').disabled = false;
-            }
-        });
-
         document.getElementById('cloneButton').addEventListener('click', async () => {
             const text = document.getElementById('voiceInput').value;
-            if (text) {
-                await voiceCloning.cloneVoice(audioBlob, text);
+            if (text && recordedAudioBlob) {
+                await cloneVoice(recordedAudioBlob, text);
             }
         });
     </script>

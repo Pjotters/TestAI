@@ -156,4 +156,59 @@ function applyFilter(filterType) {
     cv.imshow(canvas, dst);
     src.delete();
     dst.delete();
+}
+
+async function textToSpeech(text) {
+    try {
+        const response = await fetch("https://api-inference.huggingface.co/models/facebook/mms-tts-nld", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                inputs: text
+            })
+        });
+
+        if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
+
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        await audio.play();
+
+        return true;
+    } catch (error) {
+        console.error('Text-to-Speech mislukt:', error);
+        return false;
+    }
+}
+
+async function cloneVoice(audioBlob, text) {
+    try {
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        formData.append('text', text);
+
+        const response = await fetch("https://api-inference.huggingface.co/models/facebook/fastspeech2-en-ljspeech", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_API_KEY}`
+            },
+            body: formData
+        });
+
+        if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
+
+        const clonedAudioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(clonedAudioBlob);
+        const audio = new Audio(audioUrl);
+        await audio.play();
+
+        return true;
+    } catch (error) {
+        console.error('Voice cloning mislukt:', error);
+        return false;
+    }
 } 
