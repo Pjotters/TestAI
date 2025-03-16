@@ -187,22 +187,12 @@ async function textToSpeech(text) {
 
 async function cloneVoice(audioBlob, text) {
     try {
-        // Convert audioBlob to base64
-        const reader = new FileReader();
-        const audioData = await new Promise((resolve) => {
-            reader.onloadend = () => resolve(reader.result.split(',')[1]);
-            reader.readAsDataURL(audioBlob);
-        });
-
         const response = await fetch("/api/voice-clone", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ 
-                audioData,
-                text 
-            })
+            body: JSON.stringify({ text })
         });
 
         if (!response.ok) {
