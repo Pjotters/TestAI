@@ -17,16 +17,16 @@ export default async function handler(req, res) {
     try {
         const { audioData, text } = req.body;
 
-        const response = await fetch("https://api-inference.huggingface.co/models/coqui/XTTS-v2", {
+        const response = await fetch("https://api-inference.huggingface.co/models/suno/bark", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                inputs: {
-                    audio: audioData,
-                    text: text
+                inputs: text,
+                parameters: {
+                    voice_preset: "v2/nl_speaker_1"
                 }
             })
         });
