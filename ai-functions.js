@@ -160,14 +160,13 @@ function applyFilter(filterType) {
 
 async function textToSpeech(text) {
     try {
-        const response = await fetch("https://api-inference.huggingface.co/models/facebook/mms-tts-nld", {
+        const response = await fetch("/api/tts", {  // Gebruik je eigen API endpoint
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                inputs: text
+                text: text
             })
         });
 
@@ -191,11 +190,8 @@ async function cloneVoice(audioBlob, text) {
         formData.append('audio', audioBlob);
         formData.append('text', text);
 
-        const response = await fetch("https://api-inference.huggingface.co/models/facebook/fastspeech2-en-ljspeech", {
+        const response = await fetch("/api/voice-clone", {  // Gebruik je eigen API endpoint
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`
-            },
             body: formData
         });
 
