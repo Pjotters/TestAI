@@ -159,7 +159,14 @@ function applyFilter(filterType) {
 }
 
 async function textToSpeech(text) {
+    if (!text) {
+        console.error('No text provided');
+        return false;
+    }
+
     try {
+        console.log('Sending TTS request:', text);
+
         const response = await fetch("/api/tts", {
             method: "POST",
             headers: {
@@ -172,10 +179,20 @@ async function textToSpeech(text) {
             throw new Error(`API request failed with status ${response.status}`);
         }
 
-        // Direct de audio afspelen
         const blob = await response.blob();
+        if (blob.size === 0) {
+            throw new Error('Received empty audio response');
+        }
+
         const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
+        
+        // Wacht tot de audio geladen is
+        await new Promise((resolve, reject) => {
+            audio.onloadeddata = resolve;
+            audio.onerror = reject;
+        });
+
         await audio.play();
         return true;
 

@@ -6,8 +6,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Gebruik Coqui TTS - een betrouwbaar model
-        const response = await fetch("https://api-inference.huggingface.co/models/coqui/xtts-v2", {
+        // Gebruik Microsoft's Speech-to-Text model
+        const response = await fetch("https://api-inference.huggingface.co/models/microsoft/speecht5_tts", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
@@ -16,22 +16,39 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 inputs: {
                     text: req.body.text,
-                    language: "nl"
+                    model_id: "v3_nl"
                 }
             })
         });
 
+        // Log voor debugging
+        console.log('HuggingFace Status:', response.status);
+        
         if (!response.ok) {
-            return res.status(response.status).json({
-                error: 'HuggingFace API Error',
-                status: response.status
+            // Probeer een alternatief model als het eerste faalt
+            const backupResponse = await fetch("https://api-inference.huggingface.co/models/facebook/mms-tts-eng", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    inputs: req.body.text
+                })
             });
+
+            if (!backupResponse.ok) {
+                throw new Error(`Both TTS models failed`);
+            }
+
+            const backupData = await backupResponse.arrayBuffer();
+            res.setHeader('Content-Type', 'audio/wav');
+            return res.status(200).send(Buffer.from(backupData));
         }
 
-        // Direct de binary data doorsturen
         const data = await response.arrayBuffer();
-        res.setHeader('Content-Type', 'audio/mpeg');
-        res.status(200).send(Buffer.from(data));
+        res.setHeader('Content-Type', 'audio/wav');
+        return res.status(200).send(Buffer.from(data));
 
     } catch (error) {
         console.error('TTS Error:', error);
