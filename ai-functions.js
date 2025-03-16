@@ -160,6 +160,8 @@ function applyFilter(filterType) {
 
 async function textToSpeech(text) {
     try {
+        console.log('Sending TTS request with text:', text);
+
         const response = await fetch("/api/tts", {
             method: "POST",
             headers: {
@@ -168,19 +170,28 @@ async function textToSpeech(text) {
             body: JSON.stringify({ text })
         });
 
+        console.log('TTS Response status:', response.status);
+
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || `API verzoek mislukt: ${response.status}`);
+            const errorData = await response.json();
+            console.error('TTS Error details:', errorData);
+            throw new Error(errorData.error || `API verzoek mislukt: ${response.status}`);
         }
 
         const audioBlob = await response.blob();
+        console.log('Received audio blob of size:', audioBlob.size);
+
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
         await audio.play();
 
         return true;
     } catch (error) {
-        console.error('Text-to-Speech mislukt:', error);
+        console.error('Text-to-Speech mislukt:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack
+        });
         return false;
     }
 }
