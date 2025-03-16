@@ -160,7 +160,7 @@ function applyFilter(filterType) {
 
 async function textToSpeech(text) {
     try {
-        console.log('Sending TTS request with text:', text);
+        console.log('Verstuur TTS request:', text);
 
         const response = await fetch("/api/tts", {
             method: "POST",
@@ -170,16 +170,23 @@ async function textToSpeech(text) {
             body: JSON.stringify({ text })
         });
 
-        console.log('TTS Response status:', response.status);
+        console.log('TTS response status:', response.status);
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('TTS Error details:', errorData);
-            throw new Error(errorData.error || `API verzoek mislukt: ${response.status}`);
+            // Probeer eerst als JSON te parsen
+            let errorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorData.details || 'Unknown error';
+            } catch (e) {
+                // Als JSON parse faalt, gebruik de tekst response
+                errorMessage = await response.text();
+            }
+            throw new Error(errorMessage);
         }
 
         const audioBlob = await response.blob();
-        console.log('Received audio blob of size:', audioBlob.size);
+        console.log('Audio ontvangen, grootte:', audioBlob.size);
 
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
@@ -187,11 +194,7 @@ async function textToSpeech(text) {
 
         return true;
     } catch (error) {
-        console.error('Text-to-Speech mislukt:', {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
-        });
+        console.error('Text-to-Speech mislukt:', error);
         return false;
     }
 }
