@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stem AI | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link rel="icon" type="image/png" href="Logo-met.png">
+</head>
+<body>
+    <nav class="glass-nav">
+        <!-- ... bestaande navigatie ... -->
+    </nav>
+
+    <div class="ai-tools">
+        <!-- Text-to-Speech sectie -->
+        <div class="tool-section tts-section">
+            <h2>Tekst naar Spraak</h2>
+            <div class="input-container">
+                <textarea id="ttsInput" placeholder="Typ hier je tekst..."></textarea>
+                <button id="ttsButton" class="cta-primary">
+                    <span class="material-icons">volume_up</span>
+                    Spreek uit
+                </button>
+            </div>
+        </div>
+
+        <!-- Voice Cloning sectie -->
+        <div class="tool-section voice-section">
+            <h2>Stem Klonen</h2>
+            <div class="input-container">
+                <textarea id="voiceInput" placeholder="Typ hier wat je wilt laten zeggen..."></textarea>
+                <div class="recording-controls">
+                    <button id="recordButton" class="cta-primary">
+                        <span class="material-icons">mic</span>
+                        Start Opname
+                    </button>
+                    <button id="cloneButton" class="cta-primary" disabled>
+                        <span class="material-icons">record_voice_over</span>
+                        Kloon Stem
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="ai-footer">
+        <p>⚠️ Let op: AI kan fouten maken!</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="text-to-speech.js"></script>
+    <script src="voice-cloning.js"></script>
+    <script>
+        // Initialisatie
+        const tts = new TextToSpeech();
+        const voiceCloning = new VoiceCloning();
+        let isRecording = false;
+
+        // Text-to-Speech
+        document.getElementById('ttsButton').addEventListener('click', async () => {
+            const text = document.getElementById('ttsInput').value;
+            if (text) {
+                await tts.convertToSpeech(text);
+            }
+        });
+
+        // Voice Cloning
+        document.getElementById('recordButton').addEventListener('click', async () => {
+            if (!isRecording) {
+                isRecording = true;
+                document.getElementById('recordButton').innerHTML = '<span class="material-icons">stop</span>Stop Opname';
+                await voiceCloning.startRecording();
+            } else {
+                isRecording = false;
+                document.getElementById('recordButton').innerHTML = '<span class="material-icons">mic</span>Start Opname';
+                const audioBlob = await voiceCloning.stopRecording();
+                document.getElementById('cloneButton').disabled = false;
+            }
+        });
+
+        document.getElementById('cloneButton').addEventListener('click', async () => {
+            const text = document.getElementById('voiceInput').value;
+            if (text) {
+                await voiceCloning.cloneVoice(audioBlob, text);
+            }
+        });
+    </script>
+</body>
+</html> 

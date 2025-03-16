@@ -218,13 +218,66 @@ class GestureRecognition {
 
     getGestureText(gesture) {
         switch(gesture) {
-            case "duim_links": return "👉 Duim rechts"; // Gespiegeld
-            case "duim_rechts": return "👈 Duim links"; // Gespiegeld
+            case "duim_links": return "👉 Duim links"; // Gespiegeld
+            case "duim_rechts": return "👈 Duim rechts"; // Gespiegeld
             case "duim_omhoog": return "👍 Duim omhoog";
             case "duim_omlaag": return "👎 Duim omlaag";
             case "vuist": return "✊ Vuist";
             default: return `${gesture} vingers`;
         }
+    }
+}
+
+class ARGestureRecognition {
+    constructor() {
+        this.model = null;
+        this.lastGesture = null;
+        this.gestureBuffer = []; // Voor stabiliteit
+    }
+
+    async detectGestureFromImage(base64Image) {
+        if (!this.model) {
+            this.model = await handpose.load();
+        }
+
+        const predictions = await this.model.estimateHands(base64Image, {
+            flipHorizontal: false, // AR camera is niet gespiegeld
+            maxHands: 1 // Voor betere performance
+        });
+
+        if (predictions.length > 0) {
+            const gesture = this.analyzeGesture(predictions[0]);
+            
+            // Stabilisatie voor AR
+            this.gestureBuffer.push(gesture);
+            if (this.gestureBuffer.length > 3) {
+                this.gestureBuffer.shift();
+            }
+            
+            // Alleen updaten als gebaar stabiel is
+            const stableGesture = this.getStableGesture();
+            if (stableGesture) {
+                this.lastGesture = stableGesture;
+            }
+            
+            return {
+                type: this.lastGesture,
+                score: predictions[0].handInViewConfidence
+            };
+        }
+
+        return null;
+    }
+
+    getStableGesture() {
+        if (this.gestureBuffer.length < 3) return null;
+        
+        // Check of laatste 3 gebaren hetzelfde zijn
+        if (this.gestureBuffer.every(g => g === this.gestureBuffer[0])) {
+            return this.gestureBuffer[0];
+        }
+        
+        return null;
     }
 }
 
