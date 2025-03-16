@@ -172,19 +172,21 @@ async function textToSpeech(text) {
 
         console.log('TTS response status:', response.status);
 
+        // Clone de response voor error handling
+        const responseClone = response.clone();
+
         if (!response.ok) {
-            // Probeer eerst als JSON te parsen
             let errorMessage;
             try {
-                const errorData = await response.json();
-                errorMessage = errorData.error || errorData.details || 'Unknown error';
-            } catch (e) {
-                // Als JSON parse faalt, gebruik de tekst response
-                errorMessage = await response.text();
+                const errorData = await responseClone.json();
+                errorMessage = errorData.message || errorData.error || 'Unknown error';
+            } catch {
+                errorMessage = await responseClone.text();
             }
             throw new Error(errorMessage);
         }
 
+        // Gebruik de originele response voor de audio
         const audioBlob = await response.blob();
         console.log('Audio ontvangen, grootte:', audioBlob.size);
 
@@ -199,8 +201,11 @@ async function textToSpeech(text) {
     }
 }
 
+// Vereenvoudigde voice cloning functie
 async function cloneVoice(audioBlob, text) {
     try {
+        console.log('Verstuur voice clone request:', text);
+
         const response = await fetch("/api/voice-clone", {
             method: "POST",
             headers: {
@@ -209,13 +214,26 @@ async function cloneVoice(audioBlob, text) {
             body: JSON.stringify({ text })
         });
 
+        console.log('Voice clone response status:', response.status);
+
+        // Clone de response voor error handling
+        const responseClone = response.clone();
+
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || `API verzoek mislukt: ${response.status}`);
+            let errorMessage;
+            try {
+                const errorData = await responseClone.json();
+                errorMessage = errorData.message || errorData.error || 'Unknown error';
+            } catch {
+                errorMessage = await responseClone.text();
+            }
+            throw new Error(errorMessage);
         }
 
-        const clonedAudioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(clonedAudioBlob);
+        const audioBlob = await response.blob();
+        console.log('Gekloonde audio ontvangen, grootte:', audioBlob.size);
+
+        const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
         await audio.play();
 
