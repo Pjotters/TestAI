@@ -3,7 +3,9 @@ import formidable from 'formidable';
 
 export const config = {
     api: {
-        bodyParser: false,
+        bodyParser: {
+            sizeLimit: '10mb',
+        },
     },
 };
 
@@ -13,37 +15,34 @@ export default async function handler(req, res) {
     }
 
     try {
-        const form = new formidable.IncomingForm();
-        const { fields, files } = await new Promise((resolve, reject) => {
-            form.parse(req, (err, fields, files) => {
-                if (err) reject(err);
-                resolve({ fields, files });
-            });
-        });
-
-        const audioFile = files.audio;
-        const text = fields.text;
-
-        const formData = new FormData();
-        formData.append('audio', audioFile);
-        formData.append('text', text);
+        const { audioData, text } = req.body;
 
         const response = await fetch("https://api-inference.huggingface.co/models/facebook/fastspeech2-en-ljspeech", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`
+                "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+                "Content-Type": "application/json",
             },
-            body: formData
+            body: JSON.stringify({
+                inputs: {
+                    audio: audioData,
+                    text: text
+                }
+            })
         });
 
-        if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
+        if (!response.ok) {
+            console.error('HuggingFace API Error:', await response.text());
+            throw new Error(`HuggingFace API returned ${response.status}`);
+        }
 
         const audioBuffer = await response.arrayBuffer();
         
-        res.setHeader('Content-Type', 'audio/wav');
-        res.send(Buffer.from(audioBuffer));
+        res.setHeader('Content-Type', 'audio/mpeg');
+        res.status(200).send(Buffer.from(audioBuffer));
+
     } catch (error) {
         console.error('Voice Clone API Error:', error);
-        res.status(500).json({ error: 'Voice cloning failed' });
+        res.status(500).json({ error: error.message });
     }
 } 

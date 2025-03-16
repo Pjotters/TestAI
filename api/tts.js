@@ -1,4 +1,4 @@
-import { HF_API_KEY } from '../config.js';
+import { Configuration, OpenAIApi } from "openai";
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         const response = await fetch("https://api-inference.huggingface.co/models/facebook/mms-tts-nld", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
@@ -17,14 +17,18 @@ export default async function handler(req, res) {
             })
         });
 
-        if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
+        if (!response.ok) {
+            console.error('HuggingFace API Error:', await response.text());
+            throw new Error(`HuggingFace API returned ${response.status}`);
+        }
 
         const audioBuffer = await response.arrayBuffer();
         
-        res.setHeader('Content-Type', 'audio/wav');
-        res.send(Buffer.from(audioBuffer));
+        res.setHeader('Content-Type', 'audio/mpeg');
+        res.status(200).send(Buffer.from(audioBuffer));
+
     } catch (error) {
         console.error('TTS API Error:', error);
-        res.status(500).json({ error: 'Text-to-Speech failed' });
+        res.status(500).json({ error: error.message });
     }
 } 

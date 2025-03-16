@@ -160,17 +160,18 @@ function applyFilter(filterType) {
 
 async function textToSpeech(text) {
     try {
-        const response = await fetch("/api/tts", {  // Gebruik je eigen API endpoint
+        const response = await fetch("/api/tts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                text: text
-            })
+            body: JSON.stringify({ text })
         });
 
-        if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `API verzoek mislukt: ${response.status}`);
+        }
 
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
@@ -186,16 +187,28 @@ async function textToSpeech(text) {
 
 async function cloneVoice(audioBlob, text) {
     try {
-        const formData = new FormData();
-        formData.append('audio', audioBlob);
-        formData.append('text', text);
-
-        const response = await fetch("/api/voice-clone", {  // Gebruik je eigen API endpoint
-            method: "POST",
-            body: formData
+        // Convert audioBlob to base64
+        const reader = new FileReader();
+        const audioData = await new Promise((resolve) => {
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.readAsDataURL(audioBlob);
         });
 
-        if (!response.ok) throw new Error(`API verzoek mislukt: ${response.status}`);
+        const response = await fetch("/api/voice-clone", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ 
+                audioData,
+                text 
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `API verzoek mislukt: ${response.status}`);
+        }
 
         const clonedAudioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(clonedAudioBlob);
