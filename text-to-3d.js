@@ -1,5 +1,5 @@
-const API_ENDPOINT = 'https://api-inference.huggingface.co/models/openai/shap-e';
-const HF_API_KEY = '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'; // Vul hier je Hugging Face API key in
+const HF_API_URL_CHAT = "https://api-inference.huggingface.co/models/openai/shap-e";
+const HF_API_KEY = config.API_KEY;
 
 const MODEL_MAPPINGS = {
     'auto': 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
