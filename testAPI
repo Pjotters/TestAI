@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat | Pjotters-AI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ai-styles.css">
+    <link rel="stylesheet" href="feedback-styles.css">
+    <link rel="stylesheet" href="index-animations.css">
+    <link rel="stylesheet" href="chat-animations.css">
+    <link rel="stylesheet" href="tutorial-animations.css">
+    <link rel="stylesheet" href="tutorial-popup.css">
+    <link rel="stylesheet" href="tutorial.css">
+    <link rel="icon" type="image/png" href="Logo-met.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Shared Navigation -->
+    <div id="nav-placeholder"></div>
+
+    <div class="ai-tools">
+        <div class="tool-section chat-bot">
+            <h2>Pjotters</h2>
+            <p>Een AI-bot die is gemaakt met Pjotters-Intelligence-v.1 en Mistral-7B</p>
+          
+
+<div class="pjotters-voice-assistant">
+    <script src="https://pjotters-ai.vercel.app/voice-embed.js"></script>
+</div>
+                    
+</html>
