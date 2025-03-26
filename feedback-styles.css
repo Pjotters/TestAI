@@ -2,7 +2,7 @@
 .feedback-container {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
+   
     backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
@@ -82,4 +82,21 @@
     margin-top: 1.5rem;
 }
 
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.1); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+} 
 /* Animaties */
