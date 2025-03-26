@@ -97,7 +97,7 @@ class TutorialManager {
                 title: 'Voice Chat',
                 text: 'Praat met de AI via je microfoon',
                 position: 'bottom'
-            }
+            },
      6: {
                 element: '.feature-card:nth-child(7)',
                 title: 'Speaking Voice',
